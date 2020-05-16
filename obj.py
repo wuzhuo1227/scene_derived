@@ -18,7 +18,7 @@ class Object:
 
 
     def write_to_csv(self):
-        f = open('obj.csv', 'a+', encoding='utf-8-sig')
+        f = open('obj1.csv', 'a+', encoding='utf-8-sig')
         writer = csv.writer(f)
         # writer.writerow(['scene_id', 'parti_id', 'type', 'speed', 'acceleration', 'y_position', 'x_position',
         #                  'yaw', 'parti_action', 'xml', 'lane'])
