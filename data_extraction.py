@@ -18,9 +18,9 @@ df_vehicle = pd.read_csv('data/nds-sync-vehicle1.csv',encoding="ISO-8859-1")
 # print(df_object.dtypes)
 # print(df_vehicle['Time'])
 
-# w_object = load_workbook(u'data/nds-sync-object.csv')
+# w_object = load_workbook(u'data/nds-sync-object-14.csv')
 # sheet_object = w_object.active
-# w_vehicle = load_workbook(u'data/nds-sync-vehicle.csv')
+# w_vehicle = load_workbook(u'data/nds-sync-vehicle-14.csv')
 # sheet_vehicle = w_vehicle.active
 
 

@@ -7,12 +7,13 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
+from curve_fit import polynomial_fit
 
-df_object = pd.read_csv('data/nds-sync-object1.csv',encoding="ISO-8859-1")
-df_vehicle = pd.read_csv('data/nds-sync-vehicle1.csv',encoding="ISO-8859-1")
+df_object = pd.read_csv('data/nds-sync-object-14.csv',encoding="ISO-8859-1")
+df_vehicle = pd.read_csv('data/nds-sync-vehicle-14.csv',encoding="ISO-8859-1")
 
-df_object_16 = pd.read_csv('data/nds-sync-object16.csv',encoding="ISO-8859-1")
-df_vehicle_16 = pd.read_csv('data/nds-sync-vehicle16.csv',encoding="ISO-8859-1")
+df_object_16 = pd.read_csv('data/nds-sync-object-16.csv',encoding="ISO-8859-1")
+df_vehicle_16 = pd.read_csv('data/nds-sync-vehicle-16.csv',encoding="ISO-8859-1")
 
 workbook = load_workbook(u'data/ScenariosLabeling2tianda.xlsx')
 booksheet = workbook.active
@@ -139,34 +140,34 @@ lc_min = []
 rc_max = []
 rc_min = []
 
-# start = 60
-# print(speed.shape)
-# print(obj_speed.shape)
-#
-# for i in range(5):
-#     print(i)
-#     # if a[np.where((speed>start+i*10) & (speed<start+i*10+10))].shape[0] == 0:
-#     #     a_max.append(0)
-#     #     a_min.append(0)
-#     # else:
-#     a_max.append(a[np.where((speed>start+i*10) & (speed<start+i*10+10))].max())
-#     a_min.append(a[np.where((speed > start + i * 10) & (speed < start + i * 10 + 10))].min())
-#
-#     obj_speed_max.append(obj_speed[np.where((speed>start+i*10) & (speed<start+i*10+10))].max())
-#     obj_speed_min.append(obj_speed[np.where((speed>start+i*10) & (speed<start+i*10+10))].min())
-#
-#     obj_a_max.append(obj_a[np.where((obj_speed>start+i*10) & (obj_speed<start+i*10+10))].max())
-#     obj_a_min.append(obj_a[np.where((obj_speed > start + i * 10) & (obj_speed < start + i * 10 + 10))].min())
-#
-#     # lc_max.append(lc[np.where((speed>start+i*10) & (speed<start+i*10+10))].max())
-#     # lc_min.append(lc[np.where((speed > start + i * 10) & (speed < start + i * 10 + 10))].min())
-#     #
-#     # rc_max.append(rc[np.where((speed > start + i * 10) & (speed < start + i * 10 + 10))].max())
-#     # rc_min.append(rc[np.where((speed > start + i * 10) & (speed < start + i * 10 + 10))].min())
-#
-#
-#     distance_max.append(distance[np.where((speed>start+i*10) & (speed<start+i*10+10))].max())
-#     distance_min.append(distance[np.where((speed > start + i * 10) & (speed < start + i * 10 + 10))].min())
+start = 60
+print(speed.shape)
+print(obj_speed.shape)
+
+for i in range(5):
+    print(i)
+    # if a[np.where((speed>start+i*10) & (speed<start+i*10+10))].shape[0] == 0:
+    #     a_max.append(0)
+    #     a_min.append(0)
+    # else:
+    a_max.append(a[np.where((speed>start+i*10) & (speed<start+i*10+10))].max())
+    a_min.append(a[np.where((speed > start + i * 10) & (speed < start + i * 10 + 10))].min())
+
+    obj_speed_max.append(obj_speed[np.where((speed>start+i*10) & (speed<start+i*10+10))].max())
+    obj_speed_min.append(obj_speed[np.where((speed>start+i*10) & (speed<start+i*10+10))].min())
+
+    obj_a_max.append(obj_a[np.where((obj_speed>start+i*10) & (obj_speed<start+i*10+10))].max())
+    obj_a_min.append(obj_a[np.where((obj_speed > start + i * 10) & (obj_speed < start + i * 10 + 10))].min())
+
+    # lc_max.append(lc[np.where((speed>start+i*10) & (speed<start+i*10+10))].max())
+    # lc_min.append(lc[np.where((speed > start + i * 10) & (speed < start + i * 10 + 10))].min())
+    #
+    # rc_max.append(rc[np.where((speed > start + i * 10) & (speed < start + i * 10 + 10))].max())
+    # rc_min.append(rc[np.where((speed > start + i * 10) & (speed < start + i * 10 + 10))].min())
+
+
+    distance_max.append(distance[np.where((speed>start+i*10) & (speed<start+i*10+10))].max())
+    distance_min.append(distance[np.where((speed > start + i * 10) & (speed < start + i * 10 + 10))].min())
 
 real_speed1 = [0,5,10,15,25,30,35,40]
 
@@ -174,13 +175,13 @@ start = -5
 
 # index = [0,1,2,3,4,5,6,7,8,9,10,13]
 
-for i in range(9):
-    if distance[np.where((speed-obj_speed > start + i * 5) & (speed-obj_speed < start + i * 5 + 5))].shape[0] == 0:
-        print(i)
-        continue
-    else:
-        distance_max.append(distance[np.where((speed-obj_speed > start + i * 5) & (speed-obj_speed < start + i * 5 + 5))].max())
-        distance_min.append(distance[np.where((speed-obj_speed > start + i * 5) & (speed-obj_speed < start + i * 5 + 5))].min())
+# for i in range(5):
+#     if distance[np.where((speed-obj_speed > start + i * 5) & (speed-obj_speed < start + i * 5 + 5))].shape[0] == 0:
+#         print(i)
+#         continue
+#     else:
+#         distance_max.append(distance[np.where((speed-obj_speed > start + i * 5) & (speed-obj_speed < start + i * 5 + 5))].max())
+#         distance_min.append(distance[np.where((speed-obj_speed > start + i * 5) & (speed-obj_speed < start + i * 5 + 5))].min())
 
 
 # print(distance_max)
@@ -203,57 +204,83 @@ distance_min = np.array(distance_min).reshape(-1,1)
 real_speed1 = np.array(real_speed1).reshape(-1,1)
 
 
-# plt.subplot(221)
+degrees = [1, 2, 3, 4]
+colors = ['b', 'y', 'g', 'r']
+
+# 设置画布大小
+plt.figure(figsize=(20, 20))
+# 速度-加速度
+plt.subplot(221)
+# print('a_max', a_max)
 # reg = LinearRegression().fit(speed1, a_max)
 # print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
 # print("R平方为: %s" % reg.score(speed1, a_max))
 # plt.plot(speed1, reg.predict(speed1), color='red', linewidth=1)
-#
+
+print('whc', speed1)
+print('whc', a_max)
+polynomial_fit(speed1, a_max, degrees, colors)
+
 # reg = LinearRegression().fit(speed1, a_min)
 # print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
 # print("R平方为: %s" % reg.score(speed1, a_min))
 # plt.plot(speed1, reg.predict(speed1), color='red', linewidth=1)
-#
-# plt.scatter(speed1, a_max,  color='black', marker='x')
-# plt.scatter(speed1, a_min,  color='black')
-# # plt.scatter(speed, a,  color='black')
-# plt.ylabel('a')
-# plt.xlabel('speed')
-#
-# plt.subplot(222)
+
+polynomial_fit(speed1, a_min, degrees, colors, 0)
+
+plt.scatter(speed1, a_max,  color='black', marker='x')
+plt.scatter(speed1, a_min,  color='black')
+# plt.scatter(speed, a,  color='black')
+plt.ylabel('a')
+plt.xlabel('speed')
+# plt.title('a-speed')
+
+# 速度-目标车速度
+plt.subplot(222)
 # reg = LinearRegression().fit(speed1, obj_speed_max)
 # print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
 # print("R平方为: %s" % reg.score(speed1, obj_speed_max))
 # plt.plot(speed1, reg.predict(speed1), color='red', linewidth=1)
-#
+polynomial_fit(speed1, obj_speed_max, degrees, colors)
+
 # reg = LinearRegression().fit(speed1, obj_speed_min)
 # print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
 # print("R平方为: %s" % reg.score(speed1, obj_speed_min))
 # plt.plot(speed1, reg.predict(speed1), color='red', linewidth=1)
+polynomial_fit(speed1, obj_speed_min, degrees, colors, 0)
+
+plt.scatter(speed1, obj_speed_max,  color='black', marker='x')
+plt.scatter(speed1, obj_speed_min,  color='black')
+# plt.scatter(speed, obj_speed,  color='black')
+plt.ylabel('obj_speed')
+plt.xlabel('speed')
+
+# 速度-目标车加速度
+# plt.subplot(323)
+# # reg = LinearRegression().fit(speed1, obj_a_max)
+# # print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
+# # print("R平方为: %s" % reg.score(speed1, obj_a_max))
+# # plt.plot(speed1, reg.predict(speed1), color='red', linewidth=1)
+# #
+# # reg = LinearRegression().fit(speed1, obj_a_min)
+# # print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
+# # print("R平方为: %s" % reg.score(speed1, obj_a_min))
+# # plt.plot(speed1, reg.predict(speed1), color='red', linewidth=1)
+# polynomial_fit(speed1, obj_a_max, degrees, colors)
+# polynomial_fit(speed1, obj_a_min, degrees, colors, 0)
 #
-# plt.scatter(speed1, obj_speed_max,  color='black', marker='x')
-# plt.scatter(speed1, obj_speed_min,  color='black')
-# # plt.scatter(speed, obj_speed,  color='black')
-# plt.ylabel('obj_speed')
-# plt.xlabel('speed')
 #
-# plt.subplot(223)
-# reg = LinearRegression().fit(speed1, obj_a_max)
-# print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
-# print("R平方为: %s" % reg.score(speed1, obj_a_max))
-# plt.plot(speed1, reg.predict(speed1), color='red', linewidth=1)
-#
-# reg = LinearRegression().fit(speed1, obj_a_min)
-# print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
-# print("R平方为: %s" % reg.score(speed1, obj_a_min))
-# plt.plot(speed1, reg.predict(speed1), color='red', linewidth=1)
 # plt.scatter(speed1, obj_a_max,  color='black', marker='x')
 # plt.scatter(speed1, obj_a_min,  color='black')
 # # plt.scatter(speed, obj_a,  color='black')
 # plt.ylabel('obj_a')
 # plt.xlabel('speed')
-# # #
-# plt.subplot(224)
+
+# 速度-相对距离
+plt.subplot(223)
+
+# print('speed1', speed1)
+# print('distance_max', distance_max)
 # reg = LinearRegression().fit(speed1, distance_max)
 # print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
 # print("R平方为: %s" % reg.score(speed1, distance_max))
@@ -263,14 +290,17 @@ real_speed1 = np.array(real_speed1).reshape(-1,1)
 # print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
 # print("R平方为: %s" % reg.score(speed1, distance_min))
 # plt.plot(speed1, reg.predict(speed1), color='red', linewidth=1)
-# #
-# #
-# plt.scatter(speed1, distance_max,  color='black', marker='x')
-# plt.scatter(speed1, distance_min,  color='black')
-# # plt.scatter(speed, distance,  color='black')
-# plt.ylabel('distance')
-# plt.xlabel('speed')
+polynomial_fit(speed1, distance_max, degrees, colors)
+polynomial_fit(speed1, distance_min, degrees, colors, 0)
+#
+#
+plt.scatter(speed1, distance_max,  color='black', marker='x')
+plt.scatter(speed1, distance_min,  color='black')
+# plt.scatter(speed, distance,  color='black')
+plt.ylabel('distance')
+plt.xlabel('speed')
 
+#
 # reg = LinearRegression().fit(speed1, rc_max)
 # print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
 # print("R平方为: %s" % reg.score(speed1, rc_max))
@@ -288,7 +318,8 @@ real_speed1 = np.array(real_speed1).reshape(-1,1)
 # plt.ylabel('rc')
 # plt.xlabel('speed')
 
-
+# 目标车速度-目标车加速度
+plt.subplot(224)
 # reg = LinearRegression().fit(speed1, obj_a_max)
 # print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
 # print("R平方为: %s" % reg.score(speed1, obj_a_max))
@@ -298,11 +329,15 @@ real_speed1 = np.array(real_speed1).reshape(-1,1)
 # print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
 # print("R平方为: %s" % reg.score(speed1, obj_a_min))
 # plt.plot(speed1, reg.predict(speed1), color='red', linewidth=1)
-# plt.scatter(speed1, obj_a_max,  color='black', marker='x')
-# plt.scatter(speed1, obj_a_min,  color='black')
-# # plt.scatter(speed, obj_a,  color='black')
-# plt.ylabel('obj_a')
-# plt.xlabel('obj_speed')
+polynomial_fit(speed1, obj_a_max, degrees, colors)
+polynomial_fit(speed1, obj_a_min, degrees, colors, 0)
+
+plt.scatter(speed1, obj_a_max,  color='black', marker='x')
+plt.scatter(speed1, obj_a_min,  color='black')
+
+# plt.scatter(speed, obj_a,  color='black')
+plt.ylabel('obj_a')
+plt.xlabel('obj_speed')
 
 #
 # plt.subplot(234)
@@ -313,32 +348,38 @@ real_speed1 = np.array(real_speed1).reshape(-1,1)
 #
 #
 #
-real_speed = speed - obj_speed
-print(real_speed.max())
-print(real_speed.min())
-plt.subplot(221)
-plt.scatter(real_speed, distance,  color='black')
-plt.ylabel('distance')
-plt.xlabel('real_speed')
+# real_speed = speed - obj_speed
+# print(real_speed.max())
+# print(real_speed.min())
+# plt.subplot(426)
+# plt.scatter(real_speed, distance,  color='black')
+# plt.ylabel('distance')
+# plt.xlabel('real_speed')
 
-plt.subplot(222)
-reg = LinearRegression().fit(real_speed1, distance_max)
-print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
-print("R平方为: %s" % reg.score(real_speed1, distance_max))
-plt.plot(real_speed1, reg.predict(real_speed1), color='red', linewidth=1)
-
-reg = LinearRegression().fit(real_speed1, distance_min)
-print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
-print("R平方为: %s" % reg.score(real_speed1, distance_min))
-plt.plot(real_speed1, reg.predict(real_speed1), color='red', linewidth=1)
-
-
-plt.scatter(real_speed1, distance_max,  color='black', marker='x')
-plt.scatter(real_speed1, distance_min,  color='black')
-# plt.scatter(speed, distance,  color='black')
-plt.ylabel('distance')
-plt.xlabel('real_speed')
-
-
+# plt.subplot(426)
+# reg = LinearRegression().fit(real_speed, distance_max)
+# print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
+# print("R平方为: %s" % reg.score(real_speed, distance_max))
+# plt.plot(real_speed, reg.predict(real_speed), color='red', linewidth=1)
+#
+# reg = LinearRegression().fit(real_speed, distance_min)
+# print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
+# print("R平方为: %s" % reg.score(real_speed1, distance_min))
+# plt.plot(real_speed1, reg.predict(real_speed1), color='red', linewidth=1)
+# print('speed', speed)
+# print('obj_speed', obj_speed)
+# print('real_speed', real_speed)
+# print('distance_max', distance_max)
+# print('distance_min', distance_min)
+#
+# polynomial_fit(real_speed, distance_max, degrees, colors)
+# polynomial_fit(real_speed, distance_min, degrees, colors, 0)
+#
+# #
+# plt.scatter(real_speed, distance_max,  color='black', marker='x')
+# plt.scatter(real_speed, distance_min,  color='black')
+# # plt.scatter(speed, distance,  color='black')
+# plt.ylabel('distance')
+# plt.xlabel('real_speed')
 
 plt.show()
