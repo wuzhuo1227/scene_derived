@@ -5,11 +5,13 @@ import numpy as np
 import operator
 from functools import reduce
 
+
 def flatten(a):
     return [item for sublist in a for item in sublist]
 
 # 多项式拟合
-def polynomial_fit(x, y, degrees, colors, with_label=1):
+def polynomial_fit(x, y, degrees, colors, with_label=1, ranges_min=60, ranges_max=110, loc=4):
+    font = {'family': 'Times New Roman', 'weight': 'normal', 'size': 15}
     x = flatten(x)
     y = flatten(y)
 
@@ -28,7 +30,7 @@ def polynomial_fit(x, y, degrees, colors, with_label=1):
         print('p1 is :\n', p1)
 
         # 也可使用yvals=np.polyval(f1, x)
-        xt = np.arange(64, 106, 0.001)
+        xt = np.arange(ranges_min, ranges_max, 0.001)
         yvals = p1(xt)  # 拟合y值
         print('yvals is :\n', yvals)
         # 绘图
@@ -39,7 +41,7 @@ def polynomial_fit(x, y, degrees, colors, with_label=1):
 
     # plt.xlabel('x')
     # plt.ylabel('y')
-    plt.legend(loc=4)  # 指定legend的位置右下角
+    plt.legend(loc=loc)  # 指定legend的位置右下角
     # plt.show()
 
 
