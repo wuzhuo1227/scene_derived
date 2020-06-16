@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# 依据相对速度获取纵向距离范围
 from openpyxl import load_workbook
 import pandas as pd
 from scipy import stats
@@ -31,6 +32,7 @@ rc = []
 
 thw = []
 
+# 读取所需原始传感器数据，包括速度、加速度、目标车速度、目标车加速度、纵向距离、横向距离、车头时距
 for x in range(207):
     # if (CBehavior[x].value == "变道向左" and OPosition[x].value=="左后") or (CBehavior[x].value == "变道向右" and OPosition[x].value=="右后"):
     if (AdditionalDescription[x].value == "变道超车" and OPosition[x].value == "前"):
@@ -84,6 +86,7 @@ speed = speed.astype(np.float64)
 obj_speed = obj_speed.astype(np.float64)
 obj_a = obj_a.astype(np.float64)
 
+# 删除包含 na 的数据行
 del_pos = []
 for n in range(speed.shape[0]):
     if thw[n] == 'na':
@@ -120,12 +123,14 @@ lc_min = []
 rc_max = []
 rc_min = []
 
+# 将相对速度分区
 real_speed1 = [0, 5, 10, 15, 25, 30, 35, 40]
 
 start = -2.5
 
 # index = [0,1,2,3,4,5,6,7,8,9,10,13]
 
+# 获取每个区域内的最大最小值
 for i in range(9):
     if distance[np.where((speed - obj_speed > start + i * 5) & (speed - obj_speed < start + i * 5 + 5))].shape[0] == 0:
         print(i)

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# 参与者表
 import csv
 
 

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# 本车表
 import csv
 
 

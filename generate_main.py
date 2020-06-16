@@ -1,11 +1,13 @@
+# coding=utf-8
 import vehicle
 import obj
 import act
 import numpy as np
 
+#循线行驶遇慢车
 def meet_slow_car(s_id):
-    v1 = vehicle.Vehicle()
-    o1 = obj.Object()
+    v1 = vehicle.Vehicle()  #本车
+    o1 = obj.Object() #目标车
 
     v1.scene_id = "循线行驶遇慢车_" + str(s_id)
     o1.scene_id = "循线行驶遇慢车_" + str(s_id)
@@ -19,6 +21,8 @@ def meet_slow_car(s_id):
     v1.write_to_csv()
     o1.write_to_csv()
 
+
+#变道超车
 def change_lane(s_id):
     v1 = vehicle.Vehicle()   #本车
     o1 = obj.Object()    #同车道前车
@@ -69,6 +73,7 @@ def change_lane(s_id):
     a1.scene_id = "变道超车_" + str(s_id)
     a1.target_speed = speed1
 
+#正常循线
 def follow_road(s_id):
     v1 = vehicle.Vehicle()
     o1 = obj.Object()

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# 依据本车速度获取目标车速度和纵向距离范围
 from openpyxl import load_workbook
 import pandas as pd
 import numpy as np
@@ -29,6 +30,7 @@ rc = []
 
 thw = []
 
+# 读取所需原始传感器数据，包括速度、加速度、目标车速度、目标车加速度、纵向距离、横向距离、车头时距
 for x in range(207):
     # if (CBehavior[x].value == "变道向左" and OPosition[x].value=="左后") or (CBehavior[x].value == "变道向右" and OPosition[x].value=="右后"):
     if (AdditionalDescription[x].value == "变道超车" and OPosition[x].value == "前"):
@@ -87,6 +89,8 @@ obj_a = obj_a.astype(np.float64)
 # print(thw)
 # thw = thw.astype(np.float64)
 
+
+# 删除包含 na 的数据行
 del_pos = []
 for n in range(speed.shape[0]):
     if thw[n] == 'na':
@@ -107,12 +111,14 @@ thw = np.delete(thw, del_pos, axis=0)
 
 thw = thw.astype(np.float64)
 
+# 因为纵向距离中 na 过多，通过车头时距计算两车纵向距离
 distance = thw * speed
 
 print(speed)
 print(np.max(speed))
 print(np.min(speed))
 
+# 将本车速度分区
 speed1 = [65, 75, 85, 95, 105]
 # speed1 = [62.5, 67.5, 72.5, 77.5, 82.5, 87.5, 92.5, 97.5, 102.5, 107.5, 112.5, 117.5]
 
@@ -129,8 +135,8 @@ lc_min = []
 rc_max = []
 rc_min = []
 
+# 获取每个区域内的最大最小值
 start = 60
-
 for i in range(5):
     print(i)
     # if a[np.where((speed>start+i*10) & (speed<start+i*10+10))].shape[0] == 0:

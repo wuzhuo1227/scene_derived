@@ -1,6 +1,8 @@
+# coding=utf-8
 import csv
 
 
+# 动作序列表
 class Act:
 
     def __init__(self):

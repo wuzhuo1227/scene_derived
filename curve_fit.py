@@ -1,4 +1,5 @@
 # coding=utf-8
+# 曲线拟合功能函数文件
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 import numpy as np
