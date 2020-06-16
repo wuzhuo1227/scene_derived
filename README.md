@@ -23,7 +23,7 @@
 
 ## Usage
 
-### Plot the curve between the parameters
+### Plot the curve about the parameter ranges
 
 ```python
 python get_boundary.py
