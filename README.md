@@ -2,8 +2,6 @@
 
 ## Repository Structure
 
-The meaning of each code file is as follows:
-
 <pre/>
 - act.py
   | 动作序列表
