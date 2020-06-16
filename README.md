@@ -20,3 +20,15 @@ The meaning of each code file is as follows:
 - get_boundary_realSpeed.py
   | 依据相对速度获取纵向距离范围，包含绘图代码
 </pre>
+
+## Usage
+
+### Plot the curve between the parameters
+
+```python
+python get_boundary.py
+```
+
+```python
+python get_boundary_realSpeed.py
+```
