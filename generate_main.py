@@ -54,7 +54,8 @@ def change_lane(s_id):
     diff_speed_front = speed1 - speed_front
     f1 = open("parameters/real_distance_max", 'rb')
     real_distance_max_par = pickle.load(f1)
-    print(real_distance_max_par)
+    # print(real_distance_max_par)
+    # print(real_distance_max_par[1])
     f1.close()
 
     front_distance_max = (2.46191 * diff_speed_front + 146.14920) if (3.25515 * speed1 - 123.02134) > (2.46191 * diff_speed_front + 146.14920) else (3.25515 * speed1 - 123.02134)
@@ -64,7 +65,7 @@ def change_lane(s_id):
 
 
     diff_speed = speed1 - speed2
-    distance_max = (1.26023 * diff_speed + 184.77116) if (3.63505 * speed1 - 153.45529) > (1.26023 * diff_speed + 184.77116) else (3.63505 * speed1 - 153.45529)
+    distance_max = (real_distance_max_par[0] * diff_speed + real_distance_max_par[1]) if (3.63505 * speed1 - 153.45529) > (real_distance_max_par[0] * diff_speed + real_distance_max_par[1]) else (3.63505 * speed1 - 153.45529)
     distance_min = (5.27807 * diff_speed + 24.60874) if (5.27807 * diff_speed + 24.60874) > (-0.13771 * speed1 + 58.23334) else (-0.13771 * speed1 + 58.23334)
 
     # o1.y_position = np.random.randint(low=int(distance_min), high=int(distance_max))
