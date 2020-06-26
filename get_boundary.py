@@ -202,8 +202,8 @@ plt.xlabel('speed', font)
 
 plt.subplot(122)
 plt.xlim([55, 125])
-polynomial_fit(speed1, a_max, degrees, colors)
-polynomial_fit(speed1, a_min, degrees, colors, 0)
+polynomial_fit(speed1, a_max, degrees, colors, "parameters/speed_a_max")
+polynomial_fit(speed1, a_min, degrees, colors, "parameters/speed_a_min", 0)
 
 plt.scatter(speed1, a_max, color='black', marker='x')
 plt.scatter(speed1, a_min, color='black')
@@ -223,8 +223,8 @@ plt.xlabel('speed', font)
 plt.subplot(122)
 plt.xlim([55, 125])
 
-polynomial_fit(speed1, obj_speed_max, degrees, colors)
-polynomial_fit(speed1, obj_speed_min, degrees, colors, 0)
+polynomial_fit(speed1, obj_speed_max, degrees, colors, "parameters/speed_objv_max")
+polynomial_fit(speed1, obj_speed_min, degrees, colors, "parameters/speed_objv_min", 0)
 
 plt.scatter(speed1, obj_speed_max, color='black', marker='x')
 plt.scatter(speed1, obj_speed_min, color='black')
@@ -244,8 +244,8 @@ plt.xlabel('speed', font)
 
 plt.subplot(122)
 plt.xlim([55, 125])
-polynomial_fit(speed1, distance_max, degrees, colors)
-polynomial_fit(speed1, distance_min, degrees, colors, 0)
+polynomial_fit(speed1, distance_max, degrees, colors, "parameters/speed_distance_max")
+polynomial_fit(speed1, distance_min, degrees, colors, "parameters/speed_distance_min", 0)
 #
 #
 plt.scatter(speed1, distance_max, color='black', marker='x')
@@ -268,8 +268,8 @@ plt.xlabel('obj_speed', font)
 
 plt.subplot(122)
 plt.xlim([55, 125])
-polynomial_fit(speed1, obj_a_max, degrees, colors)
-polynomial_fit(speed1, obj_a_min, degrees, colors, 0)
+polynomial_fit(speed1, obj_a_max, degrees, colors, "parameters/objv_obja_max")
+polynomial_fit(speed1, obj_a_min, degrees, colors, "parameters/objv_obja_min", 0)
 
 plt.scatter(speed1, obj_a_max, color='black', marker='x')
 plt.scatter(speed1, obj_a_min, color='black')

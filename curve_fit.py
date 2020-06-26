@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import operator
 from functools import reduce
-
+import pickle
 
 def flatten(a):
     return [item for sublist in a for item in sublist]
 
 # 多项式拟合
-def polynomial_fit(x, y, degrees, colors, with_label=1, ranges_min=60, ranges_max=110, loc=4):
+def polynomial_fit(x, y, degrees, colors, text_name, with_label=1, ranges_min=60, ranges_max=110, loc=4):
     font = {'family': 'Times New Roman', 'weight': 'normal', 'size': 15}
     x = flatten(x)
     y = flatten(y)
@@ -26,6 +26,12 @@ def polynomial_fit(x, y, degrees, colors, with_label=1, ranges_min=60, ranges_ma
     for idx, degree in enumerate(degrees):
         f1 = np.polyfit(x, y, degree)
         print('f with degree ', degree, ' is :\n', degree, f1)
+        if degree == 1:
+            # 将函数中的参数存入文件
+            path = text_name
+            f = open(path, 'wb')
+            pickle.dump(f1, f)
+            f.close()
 
         p1 = np.poly1d(f1)
         print('p1 is :\n', p1)

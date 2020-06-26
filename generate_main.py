@@ -3,6 +3,7 @@ import vehicle
 import obj
 import act
 import numpy as np
+import pickle
 
 #循线行驶遇慢车
 def meet_slow_car(s_id):
@@ -51,6 +52,10 @@ def change_lane(s_id):
     # o_front.acceleration = np.random.randint(low=int(0.02159 * speed_front - 2.66915), high=int(0.00365 * speed_front + 0.24057))
 
     diff_speed_front = speed1 - speed_front
+    f1 = open("parameters/real_distance_max", 'rb')
+    real_distance_max_par = pickle.load(f1)
+    print(real_distance_max_par)
+    f1.close()
 
     front_distance_max = (2.46191 * diff_speed_front + 146.14920) if (3.25515 * speed1 - 123.02134) > (2.46191 * diff_speed_front + 146.14920) else (3.25515 * speed1 - 123.02134)
     front_distance_min = (3.33244 * diff_speed_front + 76.22992) if (3.33244 * diff_speed_front + 76.22992) > (-0.09651 * speed1 + 30.96327) else (-0.09651 * speed1 + 30.96327)
