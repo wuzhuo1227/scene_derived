@@ -73,7 +73,7 @@ def change_lane(s_id):
     a1.scene_id = "变道超车_" + str(s_id)
     a1.target_speed = speed1
 
-#正常循线
+#循线跟车
 def follow_road(s_id):
     v1 = vehicle.Vehicle()
     o1 = obj.Object()
