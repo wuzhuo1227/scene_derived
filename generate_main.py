@@ -6,7 +6,7 @@ import numpy as np
 import pickle
 
 #循线行驶遇慢车
-def meet_slow_car(s_id):
+def meet_slow_car(s_id, num_scene):
     v1 = vehicle.Vehicle()  #本车
     o1 = obj.Object() #目标车
 
@@ -24,7 +24,7 @@ def meet_slow_car(s_id):
 
 
 #变道超车
-def change_lane(s_id):
+def change_lane(s_id, num_scene):
     v1 = vehicle.Vehicle()   #本车
     o1 = obj.Object()    #同车道前车
 
@@ -69,7 +69,8 @@ def change_lane(s_id):
     distance_min = (5.27807 * diff_speed + 24.60874) if (5.27807 * diff_speed + 24.60874) > (-0.13771 * speed1 + 58.23334) else (-0.13771 * speed1 + 58.23334)
 
     # o1.y_position = np.random.randint(low=int(distance_min), high=int(distance_max))
-    o1.y_position = distance_min + (distance_max-distance_min) * np.random.rand()
+    # o1.y_position = distance_min + (distance_max-distance_min) * np.random.rand()
+    o1.y_position = distance_min + i * (distance_max-distance_min) / num_scene
     o1.x_position = np.random.rand()
 
     v1.write_to_csv()
@@ -80,7 +81,7 @@ def change_lane(s_id):
     a1.target_speed = speed1
 
 #循线跟车
-def follow_road(s_id):
+def follow_road(s_id, num_scene):
     v1 = vehicle.Vehicle()
     o1 = obj.Object()
 
@@ -101,7 +102,8 @@ def follow_road(s_id):
 
 
 if __name__=="__main__":
-    for i in range(10):
+    num_scene = 10    #需要生成的场景数量
+    for i in range(num_scene):
         # meet_slow_car(i)
         # follow_road(i)
-        change_lane(i)
+        change_lane(i, num_scene)
