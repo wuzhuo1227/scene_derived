@@ -1,7 +1,5 @@
 # coding=utf-8
-import vehicle
-import obj
-import act
+from src.core import act, obj, vehicle
 import numpy as np
 import pickle
 
@@ -102,7 +100,8 @@ def follow_road(s_id, num_scene):
 
 
 if __name__=="__main__":
-    num_scene = 10    #需要生成的场景数量
+    # 需要生成的场景数量
+    num_scene = 10
     for i in range(num_scene):
         # meet_slow_car(i)
         # follow_road(i)

@@ -11,7 +11,7 @@ from sklearn.linear_model import LinearRegression
 df_object = pd.read_csv('data/nds-sync-object1.csv',encoding="ISO-8859-1")
 df_vehicle = pd.read_csv('data/nds-sync-vehicle1.csv',encoding="ISO-8859-1")
 
-workbook = load_workbook(u'data/ScenariosLabeling2tianda.xlsx')    #找到需要xlsx文件的位置
+workbook = load_workbook(u'../../data/ScenariosLabeling2tianda.xlsx')    #找到需要xlsx文件的位置
 booksheet = workbook.active
 
 AdditionalDescription = booksheet['H']

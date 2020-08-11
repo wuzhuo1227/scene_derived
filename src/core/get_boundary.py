@@ -4,16 +4,15 @@ from openpyxl import load_workbook
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-from curve_fit import polynomial_fit
+from src.core.curve_fit import polynomial_fit
 
-df_object = pd.read_csv('data/nds-sync-object-14.csv', encoding="ISO-8859-1")
-df_vehicle = pd.read_csv('data/nds-sync-vehicle-14.csv', encoding="ISO-8859-1")
+df_object = pd.read_csv('../../data/nds-sync-object-14.csv', encoding="ISO-8859-1")
+df_object_16 = pd.read_csv('../../data/nds-sync-object-16.csv', encoding="ISO-8859-1")
 
-df_object_16 = pd.read_csv('data/nds-sync-object-16.csv', encoding="ISO-8859-1")
-df_vehicle_16 = pd.read_csv('data/nds-sync-vehicle-16.csv', encoding="ISO-8859-1")
+df_vehicle = pd.read_csv('../../data/nds-sync-vehicle-14.csv', encoding="ISO-8859-1")
+df_vehicle_16 = pd.read_csv('../../data/nds-sync-vehicle-16.csv', encoding="ISO-8859-1")
 
-workbook = load_workbook(u'data/ScenariosLabeling2tianda.xlsx')
+workbook = load_workbook(u'../../data/ScenariosLabeling2tianda.xlsx')
 booksheet = workbook.active
 
 AdditionalDescription = booksheet['H']
@@ -79,6 +78,8 @@ lc = np.array(lc)
 rc = np.array(rc)
 thw = np.array(thw)
 
+print(f'数据读取完毕1，共记{speed.shape[0]}条数据')
+
 a = a.astype(np.float64)
 speed = speed.astype(np.float64)
 obj_speed = obj_speed.astype(np.float64)
@@ -114,7 +115,7 @@ thw = thw.astype(np.float64)
 # 因为纵向距离中 na 过多，通过车头时距计算两车纵向距离
 distance = thw * speed
 
-print(speed)
+print(f'数据读取完毕，共记{speed.shape[0]}条数据')
 print(np.max(speed))
 print(np.min(speed))
 

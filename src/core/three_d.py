@@ -10,13 +10,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 
-df_object = pd.read_csv('data/nds-sync-object-14.csv',encoding="ISO-8859-1")
-df_vehicle = pd.read_csv('data/nds-sync-vehicle-14.csv',encoding="ISO-8859-1")
+df_object = pd.read_csv('../../data/nds-sync-object-14.csv', encoding="ISO-8859-1")
+df_vehicle = pd.read_csv('../../data/nds-sync-vehicle-14.csv', encoding="ISO-8859-1")
 
-df_object_16 = pd.read_csv('data/nds-sync-object-16.csv',encoding="ISO-8859-1")
-df_vehicle_16 = pd.read_csv('data/nds-sync-vehicle-16.csv',encoding="ISO-8859-1")
+df_object_16 = pd.read_csv('../../data/nds-sync-object-16.csv', encoding="ISO-8859-1")
+df_vehicle_16 = pd.read_csv('../../data/nds-sync-vehicle-16.csv', encoding="ISO-8859-1")
 
-workbook = load_workbook(u'data/ScenariosLabeling2tianda.xlsx')
+workbook = load_workbook(u'../../data/ScenariosLabeling2tianda.xlsx')
 booksheet = workbook.active
 
 AdditionalDescription = booksheet['H']

@@ -25,7 +25,7 @@ df_vehicle = pd.read_csv('data/nds-sync-vehicle1.csv',encoding="ISO-8859-1")
 # sheet_vehicle = w_vehicle.active
 
 
-workbook = load_workbook(u'data/ScenariosLabeling2tianda.xlsx')    #找到需要xlsx文件的位置
+workbook = load_workbook(u'../../data/ScenariosLabeling2tianda.xlsx')    #找到需要xlsx文件的位置
 booksheet = workbook.active                 #获取当前活跃的sheet,默认是第一个sheet
 
 #获取sheet页的行数据

@@ -7,8 +7,10 @@ import operator
 from functools import reduce
 import pickle
 
+
 def flatten(a):
     return [item for sublist in a for item in sublist]
+
 
 # 多项式拟合
 def polynomial_fit(x, y, degrees, colors, text_name, with_label=1, ranges_min=60, ranges_max=110, loc=4):
@@ -23,28 +25,25 @@ def polynomial_fit(x, y, degrees, colors, text_name, with_label=1, ranges_min=60
     # 用degree次多项式拟合
     # plot1 = plt.plot(x, y, 's', label='original values')
     # print('x1', x1)
-    for idx, degree in enumerate(degrees):
-        f1 = np.polyfit(x, y, degree)
-        print('f with degree ', degree, ' is :\n', degree, f1)
-        if degree == 1:
-            # 将函数中的参数存入文件
-            path = text_name
-            f = open(path, 'wb')
-            pickle.dump(f1, f)
-            f.close()
 
-        p1 = np.poly1d(f1)
-        print('p1 is :\n', p1)
+    # 将拟合参数写入文件
+    with open(text_name, 'w') as f:
+        for idx, degree in enumerate(degrees):
+            f1 = np.polyfit(x, y, degree)
+            print('f with degree ', degree, ' is :\n', degree, f1)
+            f.write(str(degree) + ':' + ','.join(str(x) for x in f1) + '\n')
+            p1 = np.poly1d(f1)
+            print('p1 is :\n', p1)
+            # 也可使用yvals=np.polyval(f1, x)
+            xt = np.arange(ranges_min, ranges_max, 0.001)
+            yvals = p1(xt)  # 拟合y值
+            print('yvals is :\n', yvals)
+            # 绘图
+            if with_label:
+                plt.plot(xt, yvals, colors[idx], label='polyfit values with degree' + str(degree))
+            else:
+                plt.plot(xt, yvals, colors[idx])
 
-        # 也可使用yvals=np.polyval(f1, x)
-        xt = np.arange(ranges_min, ranges_max, 0.001)
-        yvals = p1(xt)  # 拟合y值
-        print('yvals is :\n', yvals)
-        # 绘图
-        if with_label:
-            plt.plot(xt, yvals, colors[idx], label='polyfit values with degree' + str(degree))
-        else:
-            plt.plot(xt, yvals, colors[idx])
 
     # plt.xlabel('x')
     # plt.ylabel('y')
@@ -71,7 +70,6 @@ def exponential_fit(x, y):
     # print(y1)
     plt.plot(x1, y1, "green")
     plt.show()
-
 
 # x = [0, 5, 10, 15, 25, 30, 35, 40]
 # y = [137.06164605656792, 153.61101550877845, 198.06929110588567, 351.71281986502646, 164.91239598679968,
