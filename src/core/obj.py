@@ -18,13 +18,13 @@ class Object:
         self.xml = ""
         self.lane = 2
 
-
     def write_to_csv(self):
-        f = open('obj1.csv', 'a+', encoding='utf-8-sig')
+        f = open('../../scene/obj.csv', 'a+', encoding='utf-8-sig')
         writer = csv.writer(f)
         # writer.writerow(['scene_id', 'parti_id', 'type', 'speed', 'acceleration', 'y_position', 'x_position',
         #                  'yaw', 'parti_action', 'xml', 'lane'])
         data = [(self.scene_id, str(self.parti_id), self.type, str(self.speed), str(self.acceleration),
-                str(self.y_position), str(self.x_position), str(self.yaw), self.parti_action, self.xml, str(self.lane))]
+                 str(self.y_position), str(self.x_position), str(self.yaw), self.parti_action, self.xml,
+                 str(self.lane))]
         writer.writerows(data)
         f.close()

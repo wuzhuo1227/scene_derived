@@ -9,11 +9,17 @@ class FileUtil:
         self.label = pd.read_csv(config.label_path)
 
     def get_data(self):
+        # 本车速度
         speed = []
+        # 本车加速度
         a = []
+        # 目标车速度
         obj_speed = []
+        # 目标车加速度
         obj_a = []
         thw = []
+        # 相对速度
+        real_speed = []
         for file_group in self.config.file_groups:
             # 读取数据
             df_object = pd.read_csv(file_group.obj_path, encoding=self.config.encoding)
@@ -33,17 +39,15 @@ class FileUtil:
                 thw.extend(df_object[(df_object.Time == start_time + 1) & (df_object.PublicID == new_id)]['THW'].values)
                 if len(speed) != len(obj_speed):
                     speed.pop()
+        real_speed = [abs(speed[i] - obj_speed[i]) for i in range(len(speed))]
+        # 预处理数据
+        speed = np.array(speed).astype(np.float64)
+        a = np.array(a).astype(np.float64)
+        obj_speed = np.array(obj_speed).astype(np.float64)
+        obj_a = np.array(obj_a).astype(np.float64)
+        thw = np.array(thw).astype(np.float64)
+        real_speed = np.array(real_speed).astype(np.float64)
 
-            # 预处理数据
-        speed = np.array(speed)
-        a = np.array(a)
-        obj_speed = np.array(obj_speed)
-        obj_a = np.array(obj_a)
-        thw = np.array(thw)
-        a = a.astype(np.float64)
-        speed = speed.astype(np.float64)
-        obj_speed = obj_speed.astype(np.float64)
-        obj_a = obj_a.astype(np.float64)
 
         print(f'数据读取完毕，共记{speed.shape[0]}条数据')
 
@@ -58,10 +62,8 @@ class FileUtil:
         obj_speed = np.delete(obj_speed, del_pos, axis=0)
         obj_a = np.delete(obj_a, del_pos, axis=0)
         thw = np.delete(thw, del_pos, axis=0)
-        thw = thw.astype(np.float64)
-
         distance = thw * speed
-
+        # 计算速度的最大最小区间
         s_max = int(np.max(speed) + 1)
         s_min = int(np.min(speed) - 1)
 
@@ -71,6 +73,7 @@ class FileUtil:
         # 将本车速度分区
         speed1 = []
         obj_speed1 = []
+        real_speed1 = []
 
         a_max = []
         a_min = []
@@ -80,6 +83,8 @@ class FileUtil:
         obj_a_min = []
         distance_max = []
         distance_min = []
+        distance_max_real = []
+        distance_min_real = []
 
         # 获取每个区域内的最大最小值，遍历区间比拆分区间大一
         # 本车速度相关性分析
@@ -109,8 +114,20 @@ class FileUtil:
                 obj_a_max.append(obj_a[ran_speed].max())
                 obj_a_min.append(obj_a[ran_speed].min())
 
+        # 相对速度相关性分析
+        s_max = int(np.max(real_speed) + 1)
+        s_min = int(np.min(real_speed) - 1)
+        step = int((s_max - s_min) / 5) + 1
+        for i in range(6):
+            ran_speed = np.where((real_speed > s_min + i * step) & (real_speed < s_min + (i + 1) * step))
+            if len(ran_speed[0]) > 0:
+                real_speed1.append(s_min + i * step + step / 2)
+                distance_max_real.append(distance[ran_speed].max())
+                distance_min_real.append(distance[ran_speed].min())
+
         speed1 = np.array(speed1).reshape(-1, 1)
         obj_speed1 = np.array(obj_speed1).reshape(-1, 1)
+        real_speed1 = np.array(real_speed1).reshape(-1, 1)
         a_max = np.array(a_max).reshape(-1, 1)
         a_min = np.array(a_min).reshape(-1, 1)
         obj_speed_max = np.array(obj_speed_max).reshape(-1, 1)
@@ -119,6 +136,8 @@ class FileUtil:
         obj_a_min = np.array(obj_a_min).reshape(-1, 1)
         distance_max = np.array(distance_max).reshape(-1, 1)
         distance_min = np.array(distance_min).reshape(-1, 1)
+        distance_max_real = np.array(distance_max_real).reshape(-1, 1)
+        distance_min_real = np.array(distance_min_real).reshape(-1, 1)
 
         # 设置颜色和多项式的阶数
         degrees = [1, 2, 3, 4]
@@ -182,9 +201,9 @@ class FileUtil:
 
         plt.subplot(122)
         plt.xlim([min(speed)-5, max(speed)+5])
-        polynomial_fit(speed1, distance_max, degrees, colors, "../parameters/speed_distance_max.txt.txt",
+        polynomial_fit(speed1, distance_max, degrees, colors, "../parameters/speed_distance_max.txt",
                        ranges_min=min(speed)-1, ranges_max=max(speed)+1)
-        polynomial_fit(speed1, distance_min, degrees, colors, "../parameters/speed_distance_min.txt.txt", 0,
+        polynomial_fit(speed1, distance_min, degrees, colors, "../parameters/speed_distance_min.txt", 0,
                        ranges_min=min(speed)-1, ranges_max=max(speed)+1)
         #
         #
@@ -217,8 +236,31 @@ class FileUtil:
         plt.scatter(obj_speed1, obj_a_min, color='red')
         plt.scatter(obj_speed, obj_a, color='grey')
 
-        # plt.scatter(speed, obj_a,  color='black')
         plt.ylabel('obj_a', font)
         plt.xlabel('obj_speed', font)
+
+        plt.show()
+        plt.figure(figsize=(20, 10))
+
+        # 相对速度-距离
+        plt.subplot(121)
+        plt.scatter(real_speed, distance, color='black')
+        plt.ylabel('distance', font)
+        plt.xlabel('real_speed', font)
+
+        plt.subplot(122)
+        plt.xlim([min(real_speed) - 5, max(real_speed)+5])
+        polynomial_fit(real_speed1, distance_max_real, degrees, colors, "../parameters/real_distance_max.txt",
+                       ranges_min=min(real_speed) - 1, ranges_max=max(real_speed)+1)
+        polynomial_fit(real_speed1, distance_min_real, degrees, colors, "../parameters/real_distance_min.txt", 0,
+                       ranges_min=min(real_speed) - 1, ranges_max=max(real_speed)+1)
+
+        plt.scatter(real_speed1, distance_max_real, color='red', marker='x')
+        plt.scatter(real_speed1, distance_min_real, color='red')
+        plt.scatter(real_speed, distance, color='grey')
+
+        # plt.scatter(speed, obj_a,  color='black')
+        plt.ylabel('distance', font)
+        plt.xlabel('real_speed', font)
 
         plt.show()

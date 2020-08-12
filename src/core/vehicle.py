@@ -21,7 +21,7 @@ class Vehicle:
         self.xml = ""
 
     def write_to_csv(self):
-        f = open('vehicle1.csv', 'a+', encoding='utf-8-sig')
+        f = open('../../scene/vehicle.csv', 'a+', encoding='utf-8-sig')
         writer = csv.writer(f)
         # writer.writerow(['car_id', 'scene_id', 'type', 'color', 'speed', 'acceleration', 'lane', 'yaw', 'action',
         #                  'turn_light_state', 'light_state', 'brake_light_state', 'xml'])

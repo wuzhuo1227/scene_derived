@@ -161,8 +161,8 @@ degrees = [1, 2, 3, 4]
 colors = ['b', 'y', 'g', 'r']
 
 plt.subplot(122)
-polynomial_fit(real_speed1, distance_max, degrees, colors, "parameters/real_distance_max", ranges_min=0, ranges_max=40)
-polynomial_fit(real_speed1, distance_min, degrees, colors, "parameters/real_distance_min", 0, ranges_min=0, ranges_max=40)
+polynomial_fit(real_speed1, distance_max, degrees, colors, "../../parameters/real_distance_max", ranges_min=0, ranges_max=40)
+polynomial_fit(real_speed1, distance_min, degrees, colors, "../../parameters/real_distance_min", 0, ranges_min=0, ranges_max=40)
 
 # reg = LinearRegression().fit(real_speed1, distance_max)
 # print("一元回归方程为:  Y = %.5fX + (%.5f)" % (reg.coef_[0][0], reg.intercept_[0]))
