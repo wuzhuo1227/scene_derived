@@ -3,10 +3,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from src.core.curve_fit import polynomial_fit
 
+
 class FileUtil:
     def __init__(self, config):
         self.config = config
         self.label = pd.read_csv(config.label_path)
+
+    '''
+    根据输入的路径读取信息，拟合数据并生成相关拟合参数
+    '''
 
     def get_data(self):
         # 本车速度
@@ -17,6 +22,7 @@ class FileUtil:
         obj_speed = []
         # 目标车加速度
         obj_a = []
+        # 车头时距
         thw = []
         # 相对速度
         real_speed = []
@@ -25,20 +31,25 @@ class FileUtil:
             df_object = pd.read_csv(file_group.obj_path, encoding=self.config.encoding)
             df_vehicle = pd.read_csv(file_group.vehicle_path, encoding=self.config.encoding)
 
+            # 读取标注数据，要保证session_id的一致性
             c_label = self.label[(self.label.Session == file_group.session_id)
                                  & (self.label.AdditionalDescription == self.config.additional_description)
                                  & (self.label.OPosition == self.config.o_position)]
             for i, row in c_label.iterrows():
+                # 获取起始时间
                 start_time = row['StartTime']
                 end_time = row['EndTime']
                 new_id = row['NewID']
                 speed.extend(df_vehicle[(df_vehicle.Time == start_time + 1)]['Vehicle Speed[KPH]'].values)
                 a.extend(df_vehicle[(df_vehicle.Time == start_time + 1)]['Acceleration-x[m/s2].1'].values)
-                obj_speed.extend(df_object[(df_object.Time == start_time + 1) & (df_object.PublicID == new_id)]['VXAbs'].values)
-                obj_a.extend(df_object[(df_object.Time == start_time + 1) & (df_object.PublicID == new_id)]['AXAbs'].values)
+                obj_speed.extend(
+                    df_object[(df_object.Time == start_time + 1) & (df_object.PublicID == new_id)]['VXAbs'].values)
+                obj_a.extend(
+                    df_object[(df_object.Time == start_time + 1) & (df_object.PublicID == new_id)]['AXAbs'].values)
                 thw.extend(df_object[(df_object.Time == start_time + 1) & (df_object.PublicID == new_id)]['THW'].values)
                 if len(speed) != len(obj_speed):
                     speed.pop()
+        # 获取相对速度
         real_speed = [abs(speed[i] - obj_speed[i]) for i in range(len(speed))]
         # 预处理数据
         speed = np.array(speed).astype(np.float64)
@@ -47,7 +58,6 @@ class FileUtil:
         obj_a = np.array(obj_a).astype(np.float64)
         thw = np.array(thw).astype(np.float64)
         real_speed = np.array(real_speed).astype(np.float64)
-
 
         print(f'数据读取完毕，共记{speed.shape[0]}条数据')
 
@@ -101,7 +111,6 @@ class FileUtil:
                 distance_max.append(distance[ran_speed].max())
                 distance_min.append(distance[ran_speed].min())
 
-
         # 目标车速度相关性分析
         s_max = int(np.max(obj_speed) + 1)
         s_min = int(np.min(obj_speed) - 1)
@@ -139,6 +148,7 @@ class FileUtil:
         distance_max_real = np.array(distance_max_real).reshape(-1, 1)
         distance_min_real = np.array(distance_min_real).reshape(-1, 1)
 
+        # 以下是数据拟合部分以及画图部分
         # 设置颜色和多项式的阶数
         degrees = [1, 2, 3, 4]
         colors = ['b', 'y', 'g', 'r']
@@ -154,11 +164,12 @@ class FileUtil:
         plt.xlabel('speed', font)
 
         plt.subplot(122)
-        plt.xlim([min(speed)-5, max(speed)+5])
+        plt.xlim([min(speed) - 5, max(speed) + 5])
+        # 调用多项式拟合，拟合的维度有 degrees 设定，下同
         polynomial_fit(speed1, a_max, degrees, colors, "../parameters/speed_a_max.txt",
-                       ranges_min=min(speed)-1, ranges_max=max(speed)+1)
+                       ranges_min=min(speed) - 1, ranges_max=max(speed) + 1)
         polynomial_fit(speed1, a_min, degrees, colors, "../parameters/speed_a_min.txt", 0,
-                       ranges_min=min(speed)-1, ranges_max=max(speed)+1)
+                       ranges_min=min(speed) - 1, ranges_max=max(speed) + 1)
 
         plt.scatter(speed1, a_max, color='black', marker='x')
         plt.scatter(speed1, a_min, color='black')
@@ -176,12 +187,12 @@ class FileUtil:
         plt.xlabel('speed', font)
 
         plt.subplot(122)
-        plt.xlim([min(speed)-5, max(speed)+5])
+        plt.xlim([min(speed) - 5, max(speed) + 5])
 
         polynomial_fit(speed1, obj_speed_max, degrees, colors, "../parameters/speed_objv_max.txt",
-                       ranges_min=min(speed)-1, ranges_max=max(speed)+1)
+                       ranges_min=min(speed) - 1, ranges_max=max(speed) + 1)
         polynomial_fit(speed1, obj_speed_min, degrees, colors, "../parameters/speed_objv_min.txt", 0,
-                       ranges_min=min(speed)-1, ranges_max=max(speed)+1)
+                       ranges_min=min(speed) - 1, ranges_max=max(speed) + 1)
 
         plt.scatter(speed1, obj_speed_max, color='black', marker='x')
         plt.scatter(speed1, obj_speed_min, color='black')
@@ -200,11 +211,11 @@ class FileUtil:
         plt.xlabel('speed', font)
 
         plt.subplot(122)
-        plt.xlim([min(speed)-5, max(speed)+5])
+        plt.xlim([min(speed) - 5, max(speed) + 5])
         polynomial_fit(speed1, distance_max, degrees, colors, "../parameters/speed_distance_max.txt",
-                       ranges_min=min(speed)-1, ranges_max=max(speed)+1)
+                       ranges_min=min(speed) - 1, ranges_max=max(speed) + 1)
         polynomial_fit(speed1, distance_min, degrees, colors, "../parameters/speed_distance_min.txt", 0,
-                       ranges_min=min(speed)-1, ranges_max=max(speed)+1)
+                       ranges_min=min(speed) - 1, ranges_max=max(speed) + 1)
         #
         #
         plt.scatter(speed1, distance_max, color='black', marker='x')
@@ -226,11 +237,11 @@ class FileUtil:
         plt.xlabel('obj_speed', font)
 
         plt.subplot(122)
-        plt.xlim([min(obj_speed) - 5, max(obj_speed)+5])
+        plt.xlim([min(obj_speed) - 5, max(obj_speed) + 5])
         polynomial_fit(obj_speed1, obj_a_max, degrees, colors, "../parameters/objv_obja_max.txt",
-                       ranges_min=min(obj_speed) - 1, ranges_max=max(obj_speed)+1)
+                       ranges_min=min(obj_speed) - 1, ranges_max=max(obj_speed) + 1)
         polynomial_fit(obj_speed1, obj_a_min, degrees, colors, "../parameters/objv_obja_min.txt", 0,
-                       ranges_min=min(obj_speed) - 1, ranges_max=max(obj_speed)+1)
+                       ranges_min=min(obj_speed) - 1, ranges_max=max(obj_speed) + 1)
 
         plt.scatter(obj_speed1, obj_a_max, color='red', marker='x')
         plt.scatter(obj_speed1, obj_a_min, color='red')
@@ -249,11 +260,11 @@ class FileUtil:
         plt.xlabel('real_speed', font)
 
         plt.subplot(122)
-        plt.xlim([min(real_speed) - 5, max(real_speed)+5])
+        plt.xlim([min(real_speed) - 5, max(real_speed) + 5])
         polynomial_fit(real_speed1, distance_max_real, degrees, colors, "../parameters/real_distance_max.txt",
-                       ranges_min=min(real_speed) - 1, ranges_max=max(real_speed)+1)
+                       ranges_min=min(real_speed) - 1, ranges_max=max(real_speed) + 1)
         polynomial_fit(real_speed1, distance_min_real, degrees, colors, "../parameters/real_distance_min.txt", 0,
-                       ranges_min=min(real_speed) - 1, ranges_max=max(real_speed)+1)
+                       ranges_min=min(real_speed) - 1, ranges_max=max(real_speed) + 1)
 
         plt.scatter(real_speed1, distance_max_real, color='red', marker='x')
         plt.scatter(real_speed1, distance_min_real, color='red')

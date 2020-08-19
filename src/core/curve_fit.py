@@ -43,12 +43,7 @@ def polynomial_fit(x, y, degrees, colors, text_name, with_label=1, ranges_min=60
                 plt.plot(xt, yvals, colors[idx], label='polyfit values with degree' + str(degree))
             else:
                 plt.plot(xt, yvals, colors[idx])
-
-
-    # plt.xlabel('x')
-    # plt.ylabel('y')
     plt.legend(loc=loc)  # 指定legend的位置右下角
-    # plt.show()
 
 
 def exfunc(x, a, b, c):

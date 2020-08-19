@@ -29,7 +29,7 @@ degree 表示拟合曲线阶数
 '''
 
 
-def change_lane(s_id, num_scene, degree):
+def change_lane(s_id, degree):
     v1 = vehicle.Vehicle()  # 本车
     o1 = obj.Object()  # 同车道前车
 
@@ -49,7 +49,7 @@ def change_lane(s_id, num_scene, degree):
     f_max = Function('../../parameters/speed_objv_max.txt')
 
     o1.speed = f_min.get_func(v1.speed, degree) + np.random.rand() \
-                      * (f_max.get_func(v1.speed, degree) - f_min.get_func(v1.speed, degree))
+               * (f_max.get_func(v1.speed, degree) - f_min.get_func(v1.speed, degree))
 
     # 随机距离
     # 速度-距离
@@ -80,6 +80,7 @@ def change_lane(s_id, num_scene, degree):
     o1.y_position = distance
     # o1.x_position = np.random
 
+    # 写入文件
     v1.write_to_csv()
     o1.write_to_csv()
 
@@ -113,4 +114,5 @@ if __name__ == "__main__":
     for i in range(num_scene):
         # meet_slow_car(i)
         # follow_road(i)
-        change_lane(i, num_scene, 1)
+        # 生成变道场景，注意选择生成的场景前重新生成相关的参数。
+        change_lane(i, 1)
