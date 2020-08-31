@@ -89,7 +89,7 @@ class FileUtil:
         distance = thw * ego_v
 
         # self.fit2(ego_v, ego_a, obj_v, obj_a, ego_y_v, distance, relative_v)
-        self.fit(ego_v, obj_v, ego_y_v, distance)
+        self.fit(ego_v, ego_y_v, distance, relative_v)
 
     def generate_point(self):
         # 变道超车，并返回原车道的情景
@@ -157,7 +157,7 @@ class FileUtil:
         四个维度两两拟合
     '''
 
-    def fit(self, ego_v, obj_v, ego_y_v, distance):
+    def fit(self, ego_v, ego_y_v, distance, relative_v):
         # 计算速度的最大最小区间
         s_max = int(np.max(ego_v) + 1)
         s_min = int(np.min(ego_v) - 1)
@@ -167,8 +167,8 @@ class FileUtil:
         # 将本车速度分区
         ego_v_cluster = []
 
-        # 本车速度-目标车速度 ego-v obj-v
-        ev_ov_par = []
+        # 本车速度-相对速度 ego-v relative-v
+        ev_rv_par = []
         # 本车速度-距离 ego-v distance
         ev_dis_par = []
         # 本车速度-本车横向速度 ego-v ego-y-v
@@ -179,34 +179,34 @@ class FileUtil:
             ran_speed = np.where((ego_v > s_min + i * step) & (ego_v < s_min + (i + 1) * step))
             if len(ran_speed[0]) > 0:
                 ego_v_cluster.append(s_min + i * step + step / 2)
-                ev_ov_par.append(MathParameter(obj_v[ran_speed]))
+                ev_rv_par.append(MathParameter(relative_v[ran_speed]))
                 ev_dis_par.append(MathParameter(distance[ran_speed]))
                 ev_eyv_par.append(MathParameter(ego_y_v[ran_speed]))
 
         # 计算速度的最大最小区间
-        s_max = int(np.max(obj_v) + 1)
-        s_min = int(np.min(obj_v) - 1)
+        s_max = int(np.max(relative_v) + 1)
+        s_min = int(np.min(relative_v) - 1)
 
         # 当数据量大的时候可以酌情考虑将区间加大，目前设置成5
         step = int((s_max - s_min) / 5) + 1
 
-        obj_v_cluster = []
+        relative_v_cluster = []
 
-        # 目标车速度-本车速度 obj-v ego-v
-        ov_ev_par = []
-        # 目标车速度-距离 obj-v distance
-        ov_dis_par = []
-        # 目标车速度-本车横向速度 obj-v ego-y-v
-        ov_eyv_par = []
+        # 相对速度-本车速度 relative-v ego-v
+        rv_ev_par = []
+        # 相对速度-距离 relative-v distance
+        rv_dis_par = []
+        # 相对速度-本车横向速度 relative-v ego-y-v
+        rv_eyv_par = []
 
         # 获取每个区域内的最大最小值，遍历区间比拆分区间大一
         for i in range(6):
-            ran_speed = np.where((obj_v > s_min + i * step) & (obj_v < s_min + (i + 1) * step))
+            ran_speed = np.where((relative_v > s_min + i * step) & (relative_v < s_min + (i + 1) * step))
             if len(ran_speed[0]) > 0:
-                obj_v_cluster.append(s_min + i * step + step / 2)
-                ov_ev_par.append(MathParameter(ego_v[ran_speed]))
-                ov_dis_par.append(MathParameter(distance[ran_speed]))
-                ov_eyv_par.append(MathParameter(ego_y_v[ran_speed]))
+                relative_v_cluster.append(s_min + i * step + step / 2)
+                rv_ev_par.append(MathParameter(ego_v[ran_speed]))
+                rv_dis_par.append(MathParameter(distance[ran_speed]))
+                rv_eyv_par.append(MathParameter(ego_y_v[ran_speed]))
 
         # 计算速度的最大最小区间
         s_max = int(np.max(distance) + 1)
@@ -219,8 +219,8 @@ class FileUtil:
 
         # 距离-本车速度 distance ego-v
         dis_ev_par = []
-        # 距离-目标车速度 distance obj-v
-        dis_ov_par = []
+        # 距离-相对速度 distance relative-v
+        dis_rv_par = []
         # 距离-本车横向速度 distance ego-y-v
         dis_eyv_par = []
 
@@ -230,7 +230,7 @@ class FileUtil:
             if len(ran_speed[0]) > 0:
                 distance_cluster.append(s_min + i * step + step / 2)
                 dis_ev_par.append(MathParameter(ego_v[ran_speed]))
-                dis_ov_par.append(MathParameter(obj_v[ran_speed]))
+                dis_rv_par.append(MathParameter(relative_v[ran_speed]))
                 dis_eyv_par.append(MathParameter(ego_y_v[ran_speed]))
 
         # 计算速度的最大最小区间
@@ -243,8 +243,8 @@ class FileUtil:
         ego_y_v_cluster = []
         # 本车横向速度-本车速度 ego-y-v ego-v
         eyv_ev_par = []
-        # 本车横向速度-目标车速度 ego-y-v obj-v
-        eyv_ov_par = []
+        # 本车横向速度-相对速度 ego-y-v relative-v
+        eyv_rv_par = []
         # 本车横向速度-距离 ego-y-v distance
         eyv_dis_par = []
 
@@ -254,7 +254,7 @@ class FileUtil:
             if len(ran_speed[0]) > 0:
                 ego_y_v_cluster.append(s_min + i * step + step / 2)
                 eyv_ev_par.append(MathParameter(ego_v[ran_speed]))
-                eyv_ov_par.append(MathParameter(obj_v[ran_speed]))
+                eyv_rv_par.append(MathParameter(relative_v[ran_speed]))
                 eyv_dis_par.append(MathParameter(distance[ran_speed]))
 
         # 以下是数据拟合部分以及画图部分
@@ -262,26 +262,44 @@ class FileUtil:
         degrees = [1]
         colors = ['b']
         font = {'family': 'Times New Roman', 'weight': 'normal', 'size': 15, }
-
-        draw(ego_v, obj_v, ego_v_cluster, ev_ov_par, degrees, colors, '../parameters/ev_ov', 'ego-v', 'obj_v')
+        plt.figure(figsize=(20, 20))
+        plt.subplot(4, 4, 1)
+        plt.subplot(4, 4, 2)
+        draw(ego_v, relative_v, ego_v_cluster, ev_rv_par, degrees, colors, '../parameters/ev_rv', 'ego-v', 'relative_v')
+        plt.subplot(443)
         draw(ego_v, distance, ego_v_cluster, ev_dis_par, degrees, colors, '../parameters/ev_dis', 'ego-v', 'distance')
+        plt.subplot(444)
         draw(ego_v, ego_y_v, ego_v_cluster, ev_eyv_par, degrees, colors, '../parameters/ev_eyv', 'ego-v', 'ego-y-v')
 
-        draw(obj_v, ego_v, obj_v_cluster, ov_ev_par, degrees, colors, '../parameters/ov_ev', 'obj_v', 'ego-v')
-        draw(obj_v, distance, obj_v_cluster, ov_dis_par, degrees, colors, '../parameters/ov_dis', 'obj_v', 'distance')
-        draw(obj_v, ego_y_v, obj_v_cluster, ov_eyv_par, degrees, colors, '../parameters/ov_e_y_v', 'obj_v', 'ego-y-v')
+        plt.subplot(445)
+        draw(relative_v, ego_v, relative_v_cluster, rv_ev_par, degrees, colors, '../parameters/rv_ev', 'relative_v',
+             'ego-v')
+        plt.subplot(447)
+        draw(relative_v, distance, relative_v_cluster, rv_dis_par, degrees, colors, '../parameters/rv_dis',
+             'relative_v', 'distance')
+        plt.subplot(448)
+        draw(relative_v, ego_y_v, relative_v_cluster, rv_eyv_par, degrees, colors, '../parameters/rv_e_y_v',
+             'relative_v', 'ego-y-v')
 
+        plt.subplot(449)
         draw(distance, ego_v, distance_cluster, dis_ev_par, degrees, colors, '../parameters/dis_ev', 'distance',
              'ego-v')
-        draw(distance, obj_v, distance_cluster, dis_ov_par, degrees, colors, '../parameters/dis_ov', 'distance',
-             'obj_v')
+        plt.subplot(4, 4, 10)
+        draw(distance, relative_v, distance_cluster, dis_rv_par, degrees, colors, '../parameters/dis_rv', 'distance',
+             'relative_v')
+        plt.subplot(4, 4, 12)
         draw(distance, ego_y_v, distance_cluster, dis_eyv_par, degrees, colors, '../parameters/dis_eyv', 'distance',
              'ego_y_v')
 
+        plt.subplot(4, 4, 13)
         draw(ego_y_v, ego_v, ego_y_v_cluster, eyv_ev_par, degrees, colors, '../parameters/eyv_ev', 'ego_y_v', 'ego-v')
-        draw(ego_y_v, obj_v, ego_y_v_cluster, eyv_ov_par, degrees, colors, '../parameters/eyv_ov', 'ego_y_v', 'obj_v')
+        plt.subplot(4, 4, 14)
+        draw(ego_y_v, relative_v, ego_y_v_cluster, eyv_rv_par, degrees, colors, '../parameters/eyv_rv', 'ego_y_v',
+             'relative_v')
+        plt.subplot(4, 4, 15)
         draw(ego_y_v, distance, ego_y_v_cluster, eyv_dis_par, degrees, colors, '../parameters/eyv_dis', 'ego_y_v',
              'distance')
+        plt.show()
         return
 
     def fit2(self, ego_v, ego_a, obj_v, obj_a, ego_y_v, distance, relative_v):

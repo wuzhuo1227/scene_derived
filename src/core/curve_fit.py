@@ -83,7 +83,7 @@ def exponential_fit(x, y):
 def draw(x0, y0, x1, y1, degrees, colors, path, xlabel, ylabel):
     font = {'family': 'Times New Roman', 'weight': 'normal', 'size': 15}
     # 设置画布大小
-    plt.figure(figsize=(10, 10))
+    # plt.figure(figsize=(10, 10))
     # 速度-加速度
     plt.xlim([min(x0) - 5, max(x0) + 5])
     plt.scatter(x0, y0, color='grey', label=u'实测值')
@@ -101,4 +101,4 @@ def draw(x0, y0, x1, y1, degrees, colors, path, xlabel, ylabel):
     plt.scatter(x1, [item.min_std for item in y1], color='green', marker='v', label=u'下界µ-3$\sigma$')
     plt.scatter(x1, [item.mean for item in y1], color='red', marker='x', label=u'平均值µ')
     plt.legend(loc='best', fontsize=15)
-    plt.show()
+    # plt.show()
