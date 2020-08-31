@@ -2,16 +2,21 @@ import numpy as np
 
 
 class MathParameter:
-    def __init__(self, list):
-        mean = np.mean(list)
-        var = np.var(list)
-        u = np.std(list, ddof=1)
+    def __init__(self, lst):
+        if len(lst) == 1:
+            mean = lst[0]
+            var = 0
+            u = 0
+        else:
+            mean = np.mean(lst)
+            var = np.var(lst)
+            u = np.std(lst, ddof=1)
         # 平均值 µ
         self.mean = mean
         # 最大值
-        self.max = list.max()
+        self.max = lst.max()
         # 最小值
-        self.min = list.min()
+        self.min = lst.min()
         # 方差 µ²
         self.var = var
         # 标准差 µ

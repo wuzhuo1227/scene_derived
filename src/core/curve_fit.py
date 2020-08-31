@@ -90,15 +90,15 @@ def draw(x0, y0, x1, y1, degrees, colors, path, xlabel, ylabel):
     plt.ylabel(ylabel, font)
     plt.xlabel(xlabel, font)
     # 调用多项式拟合，拟合的维度有 degrees 设定
-    polynomial_fit(x1, [item.max_std for item in y1], degrees, colors, path + '_max.txt',
+    polynomial_fit(x1, [item.max_std for item in y1], degrees, ['b'], path + '_max.txt',
                    ranges_min=min(x0) - 1, ranges_max=max(x0) + 1)
-    polynomial_fit(x1, [item.min_std for item in y1], degrees, colors, path + '_min.txt', 0,
+    polynomial_fit(x1, [item.min_std for item in y1], degrees, ['g'], path + '_min.txt', 0,
                    ranges_min=min(x0) - 1, ranges_max=max(x0) + 1)
-    polynomial_fit(x1, [item.mean for item in y1], degrees, colors, path, 0,
+    polynomial_fit(x1, [item.mean for item in y1], degrees, ['r'], path, 0,
                    ranges_min=min(x0) - 1, ranges_max=max(x0) + 1)
 
-    plt.scatter(x1, [item.max_std for item in y1], color='blue', marker='v', label=u'上界µ+3$\sigma$')
-    plt.scatter(x1, [item.min_std for item in y1], color='green', marker='^', label=u'下界µ-3$\sigma$')
+    plt.scatter(x1, [item.max_std for item in y1], color='blue', marker='^', label=u'上界µ+3$\sigma$')
+    plt.scatter(x1, [item.min_std for item in y1], color='green', marker='v', label=u'下界µ-3$\sigma$')
     plt.scatter(x1, [item.mean for item in y1], color='red', marker='x', label=u'平均值µ')
     plt.legend(loc='best', fontsize=15)
     plt.show()

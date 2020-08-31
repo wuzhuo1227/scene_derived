@@ -49,6 +49,6 @@ if __name__ == '__main__':
     file_util = FileUtil(config)
 
     # parameters is stored in parameters folder
-    # file_util.get_data()
+    file_util.get_data()
 
-    file_util.generate_point()
+    # file_util.generate_point()
