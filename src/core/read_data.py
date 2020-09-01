@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from src.core.curve_fit import polynomial_fit
 from src.core.curve_fit import draw
 from src.core.math_parameter import MathParameter
+from src.core.scenario import LaneChangeScenario
 
 
 class FileUtil:
@@ -16,20 +17,8 @@ class FileUtil:
     '''
 
     def get_data(self):
-        # 本车速度 ego-v
-        ego_v = []
-        # 本车加速度 ego-a
-        ego_a = []
-        # 目标车速度 obj-v
-        obj_v = []
-        # 目标车加速度
-        obj_a = []
-        # 车头时距
-        thw = []
-        # 相对速度
-        relative_v = []
-        # 横向速度
-        ego_y_v = []
+        # 场景列表
+        scenario_list = []
         for file_group in self.config.file_groups:
             # 读取数据
             df_object = pd.read_csv(file_group.obj_path, encoding=self.config.encoding)
@@ -43,74 +32,55 @@ class FileUtil:
                                  & (self.label.OBehavior == '循线')]
             for i, row in c_label.iterrows():
                 # 获取起始时间
-                start_time = row['StartTime']
-                end_time = row['EndTime']
+                start_time = row['PStartTime']
+                end_time = row['PEndTime']
                 new_id = row['NewID']
-                ego_v.extend(df_vehicle[(df_vehicle.Time == start_time + 1)]['Vehicle Speed[KPH]'].values)
-                ego_a.extend(df_vehicle[(df_vehicle.Time == start_time + 1)]['Acceleration-x[m/s2].1'].values)
-                obj_v.extend(
-                    df_object[(df_object.Time == start_time + 1) & (df_object.PublicID == new_id)]['VXAbs'].values)
-                obj_a.extend(
-                    df_object[(df_object.Time == start_time + 1) & (df_object.PublicID == new_id)]['AXAbs'].values)
-                thw.extend(df_object[(df_object.Time == start_time + 1) & (df_object.PublicID == new_id)]['THW'].values)
-                # 目标车的横向相对速度
-                ego_y_v.extend(df_object[(df_object.Time == start_time + 1)
-                                         & (df_object.PublicID == new_id)]['VYRel'].values)
-                if len(ego_v) != len(obj_v):
-                    ego_v.pop()
-        # 获取相对速度
-        relative_v = [ego_v[i] - obj_v[i] for i in range(len(ego_v))]
-        # 预处理数据
-        ego_v = np.array(ego_v).astype(np.float64)
-        ego_a = np.array(ego_a).astype(np.float64)
-        obj_v = np.array(obj_v).astype(np.float64)
-        obj_a = np.array(obj_a).astype(np.float64)
-        thw = np.array(thw).astype(np.float64)
-        relative_v = np.array(relative_v).astype(np.float64)
-        ego_y_v = np.array(ego_y_v).astype(np.float64)
-        # 目标车相对于本车的速度，需要求负数
-        ego_y_v = -ego_y_v
+                scenario = LaneChangeScenario(df_vehicle, df_object, start_time, end_time, new_id)
+                if scenario.check_nan():
+                    scenario_list.append(scenario)
+        print(f'数据读取完毕，共记{len(scenario_list)}条数据')
 
-        print(f'数据读取完毕，共记{ego_v.shape[0]}条数据')
-
-        # 删除包含 na 的数据行
-        del_pos = []
-        for n in range(ego_v.shape[0]):
-            if thw[n] == 'na':
-                del_pos.append(n)
-
-        ego_v = np.delete(ego_v, del_pos, axis=0)
-        ego_a = np.delete(ego_a, del_pos, axis=0)
-        obj_v = np.delete(obj_v, del_pos, axis=0)
-        obj_a = np.delete(obj_a, del_pos, axis=0)
-        thw = np.delete(thw, del_pos, axis=0)
-        ego_y_v = np.delete(ego_y_v, del_pos, axis=0)
-        relative_v = np.delete(relative_v, del_pos, axis=0)
-        distance = thw * ego_v
-
+        ego_v = np.array([t.ego_car.velocity_x for t in scenario_list])
+        ego_y_v = np.array([t.ego_car.velocity_y for t in scenario_list])
+        distance = np.array([t.obj_car.displacement_x for t in scenario_list])
+        relative_v = np.array([t.obj_car.relative_velocity_x for t in scenario_list])
+        # 最开始做的版本，采用本车速度去拟合其他属性
         # self.fit2(ego_v, ego_a, obj_v, obj_a, ego_y_v, distance, relative_v)
-        self.fit(ego_v, ego_y_v, distance, relative_v)
+        # 之后提出的新需求，两两曲线拟合
+        # self.fit(ego_v, ego_y_v, distance, relative_v)
+
+        time = np.array([t.change_time for t in scenario_list])
+        self.fit_time(time, ego_v, distance, relative_v)
 
     def generate_point(self):
         # 变道超车，并返回原车道的情景
         lst1 = []
-        # 变道超车，在对应时间内为返回原车道的场景
+        # 变道超车，在对应时间内未返回原车道的场景
         lst2 = []
         for file_group in self.config.file_groups:
             # 读取数据
             df_vehicle = pd.read_csv(file_group.vehicle_path, encoding=self.config.encoding)
-
+            df_object = pd.read_csv(file_group.obj_path, encoding=self.config.encoding)
             # 读取标注数据，要保证session_id的一致性
             c_label = self.label[(self.label.Session == file_group.session_id)
                                  & (self.label.AdditionalDescription == self.config.additional_description)
-                                 & (self.label.OPosition == self.config.o_position)]
+                                 & (self.label.OPosition == self.config.o_position)
+                                 & (self.label.SensorType == 'A')
+                                 & (self.label.OBehavior == '循线')]
             lst = []
             # 获取所有的场景开始和结束的时间，并去重
             for i, row in c_label.iterrows():
                 lst.append((row['PStartTime'], row['PEndTime']))
             lst = list(set(lst))
             for time_range in lst:
+                dis = df_object[(time_range[0] <= df_object.Time <= time_range[1])
+                                & (df_object.PublicID == new_id)]
+
+                ego_y_dis.extend(
+                    df_object[(df_object.Time == start_time + 1) & (df_object.PublicID == new_id)]['PosY'].values)
+
                 # 获取时间和加速度
+
                 t = df_vehicle[(df_vehicle.Time >= time_range[0])
                                & (df_vehicle.Time < time_range[1])]['Time'].values
                 a = df_vehicle[(df_vehicle.Time >= time_range[0])
@@ -302,7 +272,8 @@ class FileUtil:
         plt.show()
         return
 
-    def fit2(self, ego_v, ego_a, obj_v, obj_a, ego_y_v, distance, relative_v):
+    @staticmethod
+    def fit2(ego_v, ego_a, obj_v, obj_a, ego_y_v, distance, relative_v):
         # 计算速度的最大最小区间
         s_max = int(np.max(ego_v) + 1)
         s_min = int(np.min(ego_v) - 1)
@@ -374,3 +345,69 @@ class FileUtil:
         draw(relative_v, distance, relative_speed_cluster, distance_relative_par, degrees, colors,
              '../parameters/relativespeed_distance', 'relative-v', 'distance')
         return
+
+    @staticmethod
+    def fit_time(time, ego_v, relative_v, displacement):
+        ego_v_cluster = []
+        relative_v_cluster = []
+        displacement_cluster = []
+
+        time_ego_v_par = []
+        time_relative_v_par = []
+        time_displacement_par = []
+
+        # 计算速度的最大最小区间
+        s_max = int(np.max(ego_v) + 1)
+        s_min = int(np.min(ego_v) - 1)
+        # 当数据量大的时候可以酌情考虑将区间加大，目前设置成5
+        step = int((s_max - s_min) / 5) + 1
+        # 本车速度->变道极值时间
+        for i in range(6):
+            ran_speed = np.where((ego_v > s_min + i * step) & (ego_v < s_min + (i + 1) * step))
+            if len(ran_speed[0]) > 0:
+                ego_v_cluster.append(s_min + i * step + step / 2)
+                time_ego_v_par.append(MathParameter(time[ran_speed]))
+
+        # 计算速度的最大最小区间
+        s_max = int(np.max(relative_v) + 1)
+        s_min = int(np.min(relative_v) - 1)
+        # 当数据量大的时候可以酌情考虑将区间加大，目前设置成5
+        step = int((s_max - s_min) / 5) + 1
+        # 本车速度->变道极值时间
+        for i in range(6):
+            ran_speed = np.where((relative_v > s_min + i * step) & (relative_v < s_min + (i + 1) * step))
+            if len(ran_speed[0]) > 0:
+                relative_v_cluster.append(s_min + i * step + step / 2)
+                time_relative_v_par.append(MathParameter(time[ran_speed]))
+
+        # 计算速度的最大最小区间
+        s_max = int(np.max(displacement) + 1)
+        s_min = int(np.min(displacement) - 1)
+        # 当数据量大的时候可以酌情考虑将区间加大，目前设置成5
+        step = int((s_max - s_min) / 5) + 1
+        # 本车速度->变道极值时间
+        for i in range(6):
+            ran_speed = np.where((displacement > s_min + i * step) & (displacement < s_min + (i + 1) * step))
+            if len(ran_speed[0]) > 0:
+                displacement_cluster.append(s_min + i * step + step / 2)
+                time_displacement_par.append(MathParameter(time[ran_speed]))
+
+        degrees = [1]
+        colors = ['b']
+        font = {'family': 'Times New Roman', 'weight': 'normal', 'size': 15, }
+        plt.figure(figsize=(20, 20))
+        # 本车速度-变道时间
+        plt.subplot(2, 2, 1)
+        draw(ego_v, time, ego_v_cluster, time_ego_v_par, degrees, colors, '../parameters/time_ego_v', 'ego_v', 'time')
+
+        # 相对速度-变道时间
+        plt.subplot(2, 2, 2)
+        draw(relative_v, time, relative_v_cluster, time_relative_v_par, degrees, colors,
+             '../parameters/time_relative_v', 'relative_v', 'time')
+
+        # 两车距离-变道时间
+        plt.subplot(2, 2, 3)
+        draw(displacement, time, displacement_cluster, time_displacement_par, degrees, colors, '../parameters/time_dis',
+             'displacement', 'time')
+
+        plt.show()
