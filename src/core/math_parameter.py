@@ -2,7 +2,9 @@ import numpy as np
 
 
 class MathParameter:
-    def __init__(self, lst, sigma_num=2):
+    sigma_num = 1
+
+    def __init__(self, lst):
         if len(lst) == 1:
             mean = lst[0]
             var = 0
@@ -22,9 +24,9 @@ class MathParameter:
         # 标准差 µ
         self.std = u
         # 标准上界 µ + sigma_num * 𝛔
-        self.max_std = mean + sigma_num * u
+        self.max_std = mean + self.sigma_num * u
         # 标准下界 µ - sigma_num * 𝛔
-        self.min_std = mean - sigma_num * u
+        self.min_std = mean - self.sigma_num * u
 
     def __str__(self):
         return '[%f,%f,%f,%f,%f,%f,%f]' % (self.mean, self.max, self.min,

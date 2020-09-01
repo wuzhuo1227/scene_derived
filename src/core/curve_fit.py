@@ -3,6 +3,7 @@
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 import numpy as np
+from src.core.math_parameter import MathParameter
 
 # from matplotlib.font_manager import FontManager
 # fm = FontManager()
@@ -97,8 +98,10 @@ def draw(x0, y0, x1, y1, degrees, colors, path, xlabel, ylabel):
     polynomial_fit(x1, [item.mean for item in y1], degrees, ['r'], path, 0,
                    ranges_min=min(x0) - 1, ranges_max=max(x0) + 1)
 
-    plt.scatter(x1, [item.max_std for item in y1], color='blue', marker='^', label=u'上界µ+3$\sigma$')
-    plt.scatter(x1, [item.min_std for item in y1], color='green', marker='v', label=u'下界µ-3$\sigma$')
-    plt.scatter(x1, [item.mean for item in y1], color='red', marker='x', label=u'平均值µ')
+    plt.scatter(x1, [item.max_std for item in y1], color='blue', marker='^',
+                label=f"上界µ+{MathParameter.sigma_num}$\\sigma$")
+    plt.scatter(x1, [item.min_std for item in y1], color='green', marker='v',
+                label=f'下界µ-{MathParameter.sigma_num}$\\sigma$')
+    plt.scatter(x1, [item.mean for item in y1], color='red', marker='x', label='平均值µ')
     plt.legend(loc='best', fontsize=15)
     # plt.show()
