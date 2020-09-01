@@ -44,8 +44,13 @@ class FileUtil:
         ego_y_v = np.array([t.ego_car.velocity_y for t in scenario_list])
         distance = np.array([t.obj_car.displacement_x for t in scenario_list])
         relative_v = np.array([t.obj_car.relative_velocity_x for t in scenario_list])
-        # 最开始做的版本，采用本车速度去拟合其他属性
-        # self.fit2(ego_v, ego_a, obj_v, obj_a, ego_y_v, distance, relative_v)
+
+        ego_a = np.array([t.ego_car.acceleration_x for t in scenario_list])
+        obj_v = np.array([t.obj_car.velocity_x for t in scenario_list])
+        obj_a = np.array([t.obj_car.acceleration_x for t in scenario_list])
+
+        #最开始做的版本，采用本车速度去拟合其他属性
+        self.fit2(ego_v, ego_a, obj_v, obj_a, distance, relative_v)
         # 之后提出的新需求，两两曲线拟合
         # self.fit(ego_v, ego_y_v, distance, relative_v)
 
@@ -73,12 +78,6 @@ class FileUtil:
                 lst.append((row['PStartTime'], row['PEndTime']))
             lst = list(set(lst))
             for time_range in lst:
-                dis = df_object[(time_range[0] <= df_object.Time <= time_range[1])
-                                & (df_object.PublicID == new_id)]
-
-                ego_y_dis.extend(
-                    df_object[(df_object.Time == start_time + 1) & (df_object.PublicID == new_id)]['PosY'].values)
-
                 # 获取时间和加速度
 
                 t = df_vehicle[(df_vehicle.Time >= time_range[0])
@@ -273,7 +272,7 @@ class FileUtil:
         return
 
     @staticmethod
-    def fit2(ego_v, ego_a, obj_v, obj_a, ego_y_v, distance, relative_v):
+    def fit2(ego_v, ego_a, obj_v, obj_a, distance, relative_v):
         # 计算速度的最大最小区间
         s_max = int(np.max(ego_v) + 1)
         s_min = int(np.min(ego_v) - 1)
@@ -331,19 +330,25 @@ class FileUtil:
         degrees = [1]
         colors = ['b']
         font = {'family': 'Times New Roman', 'weight': 'normal', 'size': 15, }
+        plt.figure(figsize=(30, 20))
+        plt.subplot(2, 3, 1)
         # 本车速度，本车加速度
-        draw(ego_v, ego_a, speed_cluster, a_par, degrees, colors, '../parameters/speed_a', 'ego-v', 'ego-a')
+        draw(ego_v, ego_a, speed_cluster, a_par, degrees, colors, '../parameters/ev_ea', 'ego-v', 'ego-a')
+        plt.subplot(2, 3, 2)
         # 本车速度，目标车速度
-        draw(ego_v, obj_v, speed_cluster, obj_speed_par, degrees, colors, '../parameters/speed_objv', 'ego-v', 'obj-v')
-
+        draw(ego_v, obj_v, speed_cluster, obj_speed_par, degrees, colors, '../parameters/ev_ov', 'ego-v', 'obj-v')
+        plt.subplot(2, 3, 3)
         # 本车速度，距离
-        draw(ego_v, distance, speed_cluster, distance_par, degrees, colors, '../parameters/speed_distance', 'ego-v',
+        draw(ego_v, distance, speed_cluster, distance_par, degrees, colors, '../parameters/ev_dis', 'ego-v',
              'distance')
+        plt.subplot(2, 3, 4)
         # 目标车速度，目标车加速度
-        draw(obj_v, obj_a, obj_speed_cluster, obj_a_par, degrees, colors, '../parameters/objv_obja', 'obj-v', 'obj-a')
+        draw(obj_v, obj_a, obj_speed_cluster, obj_a_par, degrees, colors, '../parameters/ov_oa', 'obj-v', 'obj-a')
+        plt.subplot(2, 3, 5)
         # 相对速度, 距离
         draw(relative_v, distance, relative_speed_cluster, distance_relative_par, degrees, colors,
-             '../parameters/relativespeed_distance', 'relative-v', 'distance')
+             '../parameters/rv_dis', 'relative-v', 'distance')
+        plt.show()
         return
 
     @staticmethod
@@ -398,16 +403,16 @@ class FileUtil:
         plt.figure(figsize=(20, 20))
         # 本车速度-变道时间
         plt.subplot(2, 2, 1)
-        draw(ego_v, time, ego_v_cluster, time_ego_v_par, degrees, colors, '../parameters/time_ego_v', 'ego_v', 'time')
+        draw(ego_v, time, ego_v_cluster, time_ego_v_par, degrees, colors, '../parameters/ev_time', 'ego_v', 'time')
 
         # 相对速度-变道时间
         plt.subplot(2, 2, 2)
         draw(relative_v, time, relative_v_cluster, time_relative_v_par, degrees, colors,
-             '../parameters/time_relative_v', 'relative_v', 'time')
+             '../parameters/rv_time', 'relative_v', 'time')
 
         # 两车距离-变道时间
         plt.subplot(2, 2, 3)
-        draw(displacement, time, displacement_cluster, time_displacement_par, degrees, colors, '../parameters/time_dis',
+        draw(displacement, time, displacement_cluster, time_displacement_par, degrees, colors, '../parameters/dis_time',
              'displacement', 'time')
 
         plt.show()

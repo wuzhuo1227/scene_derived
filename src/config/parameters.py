@@ -1,4 +1,6 @@
 import numpy as np
+
+
 class Config:
     def __init__(self, file_groups, label_path, c_behavior='', o_position='', additional_description='',
                  encoding='ISO-8859-1'):
@@ -28,16 +30,16 @@ class Function:
                 self.pars.append(line.split(':')[1].split(','))
 
     def get_func(self, x, degree):
-        parameters = self.pars[degree-1]
+        parameters = self.pars[degree - 1]
         parameters = np.array(parameters).astype(np.float64)
         if degree == 1:
             return parameters[0] * x + parameters[1]
         elif degree == 2:
-            return parameters[0] * x*x + parameters[1] * x + parameters[2]
+            return parameters[0] * x * x + parameters[1] * x + parameters[2]
         elif degree == 3:
-            return parameters[0] * x*x*x + parameters[1] * x*x + parameters[2] * x + parameters[3]
+            return parameters[0] * x * x * x + parameters[1] * x * x + parameters[2] * x + parameters[3]
         elif degree == 4:
-            return parameters[0] * x*x*x*x + parameters[1] * x*x*x + \
-                   parameters[2] * x*x + parameters[3] * x + parameters[4]
+            return parameters[0] * x * x * x * x + parameters[1] * x * x * x + \
+                   parameters[2] * x * x + parameters[3] * x + parameters[4]
         else:
             return x

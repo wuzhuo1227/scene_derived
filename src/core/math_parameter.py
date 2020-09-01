@@ -2,7 +2,7 @@ import numpy as np
 
 
 class MathParameter:
-    def __init__(self, lst, sigma_num=3):
+    def __init__(self, lst, sigma_num=2):
         if len(lst) == 1:
             mean = lst[0]
             var = 0
