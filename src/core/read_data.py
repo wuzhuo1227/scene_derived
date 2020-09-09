@@ -52,7 +52,7 @@ class FileUtil:
         #最开始做的版本，采用本车速度去拟合其他属性
         self.fit2(ego_v, ego_a, obj_v, obj_a, distance, relative_v)
         # 之后提出的新需求，两两曲线拟合
-        # self.fit(ego_v, ego_y_v, distance, relative_v)
+        self.fit(ego_v, ego_y_v, distance, relative_v)
 
         time = np.array([t.change_time for t in scenario_list])
         self.fit_time(time, ego_v, distance, relative_v)
@@ -361,18 +361,21 @@ class FileUtil:
         time_relative_v_par = []
         time_displacement_par = []
 
+        # g = []
+
         # 计算速度的最大最小区间
         s_max = int(np.max(ego_v) + 1)
         s_min = int(np.min(ego_v) - 1)
         # 当数据量大的时候可以酌情考虑将区间加大，目前设置成5
         step = int((s_max - s_min) / 5) + 1
         # 本车速度->变道极值时间
+        # g.append(s_min)
         for i in range(6):
             ran_speed = np.where((ego_v > s_min + i * step) & (ego_v < s_min + (i + 1) * step))
             if len(ran_speed[0]) > 0:
                 ego_v_cluster.append(s_min + i * step + step / 2)
                 time_ego_v_par.append(MathParameter(time[ran_speed]))
-
+                # g.append(s_min + (i + 1) * step)
         # 计算速度的最大最小区间
         s_max = int(np.max(relative_v) + 1)
         s_min = int(np.min(relative_v) - 1)
@@ -404,7 +407,8 @@ class FileUtil:
         # 本车速度-变道时间
         plt.subplot(2, 2, 1)
         draw(ego_v, time, ego_v_cluster, time_ego_v_par, degrees, colors, '../parameters/ev_time', 'ego_v', 'time')
-
+        # for li in g:
+        #     plt.vlines(li, -6, 12, colors="c", linestyles="dashed")
         # 相对速度-变道时间
         plt.subplot(2, 2, 2)
         draw(relative_v, time, relative_v_cluster, time_relative_v_par, degrees, colors,

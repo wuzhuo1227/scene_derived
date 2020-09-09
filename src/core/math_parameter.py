@@ -2,7 +2,7 @@ import numpy as np
 
 
 class MathParameter:
-    sigma_num = 1
+    sigma_num = 3
 
     def __init__(self, lst):
         if len(lst) == 1:
