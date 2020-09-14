@@ -13,10 +13,10 @@ class Config:
 
 
 class Group:
-    def __init__(self, session_id, obj_path, vehicle_path):
+    def __init__(self, obj_path, vehicle_path):
         self.vehicle_path = vehicle_path
         self.obj_path = obj_path
-        self.session_id = session_id
+        # self.session_id = session_id
 
 
 class Function:

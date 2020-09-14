@@ -36,6 +36,9 @@ def polynomial_fit(x, y, degrees, colors, text_name, with_label=1, ranges_min=60
     # 将拟合参数写入文件
     with open(text_name, 'w') as f:
         for idx, degree in enumerate(degrees):
+            print("233")
+            print(x)
+            print(y)
             f1 = np.polyfit(x, y, degree)
             # print('f with degree ', degree, ' is :\n', degree, f1)
             f.write(str(degree) + ':' + ','.join(str(x) for x in f1) + '\n')

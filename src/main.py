@@ -6,7 +6,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 from src.core.curve_fit import polynomial_fit
 from scipy import signal
+
 if __name__ == '__main__':
+    # vehicle = pd.read_csv('/Users/liebes/project/laboratory/scene_derived/data/t_nds_vehicle_first_2.csv',
+    #                       encoding='UTF-8')
+    # obj = pd.read_csv('/Users/liebes/project/laboratory/scene_derived/data/t_nds_obj_first_2.csv',
+    #                       encoding='UTF-8')
+    # lst = obj[(obj.n_publicid == 248) & (obj.c_session == '20190617-10-53-49')]
+    # # lst = vehicle[(vehicle.c_session == '20190617-10-53-49') & (vehicle.c_time < 17.4) & (vehicle.c_time > 11.1)]
+    # print(lst['c_time'])
+    # exit(0)
+
     # df_vehicle = pd.read_csv('../data/nds-sync-vehicle-14.csv')
     # df_vehicle = df_vehicle[(df_vehicle['Time'] <= 141) & (df_vehicle['Time'] >= 133)]
     # time = df_vehicle['Time'].values
@@ -39,12 +49,12 @@ if __name__ == '__main__':
     # plt.show()
     # exit(0)
     #
-    groups = [Group(obj_path='../data/nds-sync-object-14.csv',
-                    vehicle_path='../data/nds-sync-vehicle-14.csv', session_id='20190623-14-53-38'),
-              Group(obj_path='../data/nds-sync-object-16.csv',
-                    vehicle_path='../data/nds-sync-vehicle-16.csv', session_id='20190623-16-33-14')]
-    config = Config(file_groups=groups, label_path='../data/ScenariosLabeling2tianda.csv',
-                    o_position='前', additional_description='变道超车', encoding='ISO-8859-1')
+    groups = [
+        Group(obj_path='../data/t_nds_obj_first_2.csv',
+              vehicle_path='../data/t_nds_vehicle_first_2.csv')
+    ]
+    config = Config(file_groups=groups, label_path='../data/t_high_way_scenario_2.csv',
+                    o_position='前', additional_description='变道超车', encoding='UTF-8')
 
     file_util = FileUtil(config)
 

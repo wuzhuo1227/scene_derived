@@ -25,17 +25,18 @@ class FileUtil:
             df_vehicle = pd.read_csv(file_group.vehicle_path, encoding=self.config.encoding)
 
             # 读取标注数据，要保证session_id的一致性
-            c_label = self.label[(self.label.Session == file_group.session_id)
-                                 & (self.label.AdditionalDescription == self.config.additional_description)
-                                 & (self.label.OPosition == self.config.o_position)
-                                 & (self.label.SensorType == 'A')
-                                 & (self.label.OBehavior == '循线')]
+            c_label = self.label[(self.label.c_add_des == self.config.additional_description)
+                                 & (self.label.c_oposition == self.config.o_position)
+                                 & (self.label.c_sensor_type == 'A')
+                                 & (self.label.c_obehavior == '循线')]
+            print(c_label.size)
             for i, row in c_label.iterrows():
                 # 获取起始时间
-                start_time = row['PStartTime']
-                end_time = row['PEndTime']
-                new_id = row['NewID']
-                scenario = LaneChangeScenario(df_vehicle, df_object, start_time, end_time, new_id)
+                start_time = row['c_p_starttime']
+                end_time = row['c_p_endtime']
+                new_id = row['c_newid']
+                session_id = row['c_session'].strip()
+                scenario = LaneChangeScenario(df_vehicle, df_object, start_time, end_time, new_id, session_id)
                 if scenario.check_nan():
                     scenario_list.append(scenario)
         print(f'数据读取完毕，共记{len(scenario_list)}条数据')
