@@ -1,3 +1,5 @@
+import csv
+
 from src.config.parameters import Config
 from src.config.parameters import Group
 from src.core.read_data import FileUtil
@@ -6,8 +8,37 @@ import matplotlib.pyplot as plt
 import numpy as np
 from src.core.curve_fit import polynomial_fit
 from scipy import signal
+import os
 
 if __name__ == '__main__':
+    # test()
+    # exit(0)
+    # Folder_Path = r'/Users/liebes/Downloads/temp'  # 要拼接的文件夹及其完整路径，注意不要包含中文
+    # SaveFile_Path = r'/Users/liebes/Downloads/temp'  # 拼接后要保存的文件路径
+    # SaveFile_Name = r'all.csv'  # 合并后要保存的文件名
+    #
+    # # 修改当前工作目录
+    # os.chdir(Folder_Path)
+    # # 将该文件夹下的所有文件名存入一个列表
+    # file_list = os.listdir()
+    #
+    # # 读取第一个CSV文件并包含表头
+    # df = pd.read_csv(Folder_Path + '/' + file_list[0])  # 编码默认UTF-8，若乱码自行更改
+    #
+    # # 将读取的第一个CSV文件写入合并后的文件保存
+    # df.to_csv(SaveFile_Path + '/' + SaveFile_Name, encoding="utf_8_sig", index=False)
+    #
+    # # 循环遍历列表中各个CSV文件名，并追加到合并后的文件
+    # for i in range(1, len(file_list)):
+    #     df = pd.read_csv(Folder_Path + '/' + file_list[i])
+    #     df.to_csv(SaveFile_Path + '/' + SaveFile_Name, encoding="utf_8_sig", index=False, header=False, mode='a+')
+    # exit(0)
+    # data = pd.read_csv('/Users/liebes/project/laboratory/scene_derived/data/t_nds_obj_first_2.csv', encoding='utf-8')
+    # data[u'c_session'] = data[u'c_session'].astype(str)
+    # data[u'c_session'] = data[u'c_session'].apply(lambda x: x.strip())
+    # data.to_csv('/Users/liebes/project/laboratory/scene_derived/data/t_nds_obj_first_2.csv', index=False, encoding='utf-8')
+    # exit(0)
+
     # vehicle = pd.read_csv('/Users/liebes/project/laboratory/scene_derived/data/t_nds_vehicle_first_2.csv',
     #                       encoding='UTF-8')
     # obj = pd.read_csv('/Users/liebes/project/laboratory/scene_derived/data/t_nds_obj_first_2.csv',
@@ -54,7 +85,7 @@ if __name__ == '__main__':
               vehicle_path='../data/t_nds_vehicle_first_2.csv')
     ]
     config = Config(file_groups=groups, label_path='../data/t_high_way_scenario_2.csv',
-                    o_position='前', additional_description='变道超车', encoding='UTF-8')
+                    o_position='左前', additional_description='循线', encoding='UTF-8')
 
     file_util = FileUtil(config)
 

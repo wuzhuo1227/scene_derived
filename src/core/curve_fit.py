@@ -108,37 +108,37 @@ def draw(x0, y0, x1, y1, degrees, colors, path, xlabel, ylabel):
     plt.ylabel(ylabel, font)
     plt.xlabel(xlabel + f' t-value:{round(mean_t_res.statistic, 2)},{round(std_t_res.statistic, 2)}', font)
     # 判断t检验结果差异是否显著
-    if mean_t_res.pvalue <= 0.05 and std_t_res.pvalue <= 0.05:
-        # pvalue <= 0.05 认为差异显著，不采用分组拟合的方式
-        # 画横线
-        sigma_num = MathParameter.sigma_num
-        plt.hlines(np.mean(y0) + sigma_num * np.std(y0, ddof=1), min(x0), max(x0), colors='b', linestyles='dashed',
-                   label=f"上界µ+{sigma_num}$\\sigma$")
-        plt.hlines(np.mean(y0) - sigma_num * np.std(y0, ddof=1), min(x0), max(x0), colors='g', linestyles='dashed',
-                   label=f"上界µ+{sigma_num}$\\sigma$")
-        plt.hlines(np.mean(y0), min(x0), max(x0), colors='r', linestyles='dashed',
-                   label='平均值µ')
-        with open(path + '_max.txt', 'w') as f:
-            f.write(f'1:0,{np.mean(y0) + sigma_num * np.std(y0, ddof=1)}\n')
-        with open(path + '_min.txt', 'w') as f:
-            f.write(f'1:0,{np.mean(y0) - sigma_num * np.std(y0, ddof=1)}\n')
-        with open(path + '.txt', 'w') as f:
-            f.write(f'1:0,{np.mean(y0)}\n')
-    else:
-
-        # p-value > 0.05, 接受原假设，差异不明显，采用直线拟合的方式
-        # 调用多项式拟合，拟合的维度有 degrees 设定
-        polynomial_fit(x1, [item.max_std for item in y1], degrees, ['b'], path + '_max.txt',
-                       ranges_min=min(x0) - 1, ranges_max=max(x0) + 1)
-        polynomial_fit(x1, [item.min_std for item in y1], degrees, ['g'], path + '_min.txt', 0,
-                       ranges_min=min(x0) - 1, ranges_max=max(x0) + 1)
-        polynomial_fit(x1, [item.mean for item in y1], degrees, ['r'], path, 0,
-                       ranges_min=min(x0) - 1, ranges_max=max(x0) + 1)
-        plt.scatter(x1, [item.max_std for item in y1], color='blue', marker='^',
-                label=f"上界µ+{MathParameter.sigma_num}$\\sigma$")
-        plt.scatter(x1, [item.min_std for item in y1], color='green', marker='v',
-                    label=f'下界µ-{MathParameter.sigma_num}$\\sigma$')
-        plt.scatter(x1, [item.mean for item in y1], color='red', marker='x', label='平均值µ')
+    # if mean_t_res.pvalue <= 0.05 and std_t_res.pvalue <= 0.05:
+    #     # pvalue <= 0.05 认为差异显著，不采用分组拟合的方式
+    #     # 画横线
+    #     sigma_num = MathParameter.sigma_num
+    #     plt.hlines(np.mean(y0) + sigma_num * np.std(y0, ddof=1), min(x0), max(x0), colors='b', linestyles='dashed',
+    #                label=f"上界µ+{sigma_num}$\\sigma$")
+    #     plt.hlines(np.mean(y0) - sigma_num * np.std(y0, ddof=1), min(x0), max(x0), colors='g', linestyles='dashed',
+    #                label=f"上界µ+{sigma_num}$\\sigma$")
+    #     plt.hlines(np.mean(y0), min(x0), max(x0), colors='r', linestyles='dashed',
+    #                label='平均值µ')
+    #     with open(path + '_max.txt', 'w') as f:
+    #         f.write(f'1:0,{np.mean(y0) + sigma_num * np.std(y0, ddof=1)}\n')
+    #     with open(path + '_min.txt', 'w') as f:
+    #         f.write(f'1:0,{np.mean(y0) - sigma_num * np.std(y0, ddof=1)}\n')
+    #     with open(path + '.txt', 'w') as f:
+    #         f.write(f'1:0,{np.mean(y0)}\n')
+    # else:
+    #
+    #     # p-value > 0.05, 接受原假设，差异不明显，采用直线拟合的方式
+    #     # 调用多项式拟合，拟合的维度有 degrees 设定
+    #     polynomial_fit(x1, [item.max_std for item in y1], degrees, ['b'], path + '_max.txt',
+    #                    ranges_min=min(x0) - 1, ranges_max=max(x0) + 1)
+    #     polynomial_fit(x1, [item.min_std for item in y1], degrees, ['g'], path + '_min.txt', 0,
+    #                    ranges_min=min(x0) - 1, ranges_max=max(x0) + 1)
+    #     polynomial_fit(x1, [item.mean for item in y1], degrees, ['r'], path, 0,
+    #                    ranges_min=min(x0) - 1, ranges_max=max(x0) + 1)
+    #     plt.scatter(x1, [item.max_std for item in y1], color='blue', marker='^',
+    #             label=f"上界µ+{MathParameter.sigma_num}$\\sigma$")
+    #     plt.scatter(x1, [item.min_std for item in y1], color='green', marker='v',
+    #                 label=f'下界µ-{MathParameter.sigma_num}$\\sigma$')
+    #     plt.scatter(x1, [item.mean for item in y1], color='red', marker='x', label='平均值µ')
 
     plt.legend(loc='best', fontsize=15)
     # plt.show()

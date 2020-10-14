@@ -5,7 +5,7 @@ from src.core.curve_fit import polynomial_fit
 from src.core.curve_fit import draw
 from src.core.math_parameter import MathParameter
 from src.core.scenario import LaneChangeScenario
-
+from src.core.critical_scenario import generate as generate_critical
 
 class FileUtil:
     def __init__(self, config):
@@ -25,15 +25,17 @@ class FileUtil:
             df_vehicle = pd.read_csv(file_group.vehicle_path, encoding=self.config.encoding)
 
             # 读取标注数据，要保证session_id的一致性
-            c_label = self.label[(self.label.c_add_des == self.config.additional_description)
-                                 & (self.label.c_oposition == self.config.o_position)
-                                 & (self.label.c_sensor_type == 'A')
-                                 & (self.label.c_obehavior == '循线')]
-            print(c_label.size)
+            c_label = self.label[(
+                                         ((self.label.c_oposition == '左前') & (self.label.c_obehavior == '向右变道'))
+                                         | ((self.label.c_oposition == '右前') & (self.label.c_obehavior == '向左变道'))
+                                         | ((self.label.c_oposition == '左前') & (self.label.c_obehavior == '变道向右'))
+                                         | ((self.label.c_oposition == '右前') & (self.label.c_obehavior == '变道向左'))
+                                 )
+                                 & (self.label.c_sensor_type == 'A')]
             for i, row in c_label.iterrows():
                 # 获取起始时间
-                start_time = row['c_p_starttime']
-                end_time = row['c_p_endtime']
+                start_time = round(row['c_p_starttime'], 1)
+                end_time = round(row['c_p_endtime'], 1)
                 new_id = row['c_newid']
                 session_id = row['c_session'].strip()
                 scenario = LaneChangeScenario(df_vehicle, df_object, start_time, end_time, new_id, session_id)
@@ -50,13 +52,15 @@ class FileUtil:
         obj_v = np.array([t.obj_car.velocity_x for t in scenario_list])
         obj_a = np.array([t.obj_car.acceleration_x for t in scenario_list])
 
-        #最开始做的版本，采用本车速度去拟合其他属性
-        self.fit2(ego_v, ego_a, obj_v, obj_a, distance, relative_v)
-        # 之后提出的新需求，两两曲线拟合
-        self.fit(ego_v, ego_y_v, distance, relative_v)
+        # # 最开始做的版本，采用本车速度去拟合其他属性
+        # self.fit2(ego_v, ego_a, obj_v, obj_a, distance, relative_v)
+        # # 之后提出的新需求，两两曲线拟合
+        # self.fit(ego_v, ego_y_v, distance, relative_v)
+        #
+        # time = np.array([t.change_time for t in scenario_list])
+        # self.fit_time(time, ego_v, distance, relative_v)
+        generate_critical(scenario_list=scenario_list)
 
-        time = np.array([t.change_time for t in scenario_list])
-        self.fit_time(time, ego_v, distance, relative_v)
 
     def generate_point(self):
         # 变道超车，并返回原车道的情景
