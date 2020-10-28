@@ -6,6 +6,7 @@ from src.core.curve_fit import draw
 from src.core.math_parameter import MathParameter
 from src.core.scenario import LaneChangeScenario
 from src.core.critical_scenario import generate as generate_critical
+import pickle
 
 class FileUtil:
     def __init__(self, config):
@@ -16,35 +17,42 @@ class FileUtil:
     根据输入的路径读取信息，拟合数据并生成相关拟合参数
     '''
 
-    def get_data(self):
+    def get_data(self, use_cache=True):
         # 场景列表
         scenario_list = []
-        for file_group in self.config.file_groups:
-            # 读取数据
-            df_object = pd.read_csv(file_group.obj_path, encoding=self.config.encoding)
-            df_vehicle = pd.read_csv(file_group.vehicle_path, encoding=self.config.encoding)
+        if use_cache:
+            with open('scenario', 'rb') as f:
+                scenario_list = pickle.load(f)
+            print('load data from cache')
+        else:
+            for file_group in self.config.file_groups:
+                # 读取数据
+                df_object = pd.read_csv(file_group.obj_path, encoding=self.config.encoding)
+                df_vehicle = pd.read_csv(file_group.vehicle_path, encoding=self.config.encoding)
 
-            # 读取标注数据，要保证session_id的一致性
-            c_label = self.label[(
-                                         ((self.label.c_oposition == '左前') & (self.label.c_obehavior == '向右变道'))
-                                         | ((self.label.c_oposition == '右前') & (self.label.c_obehavior == '向左变道'))
-                                         | ((self.label.c_oposition == '左前') & (self.label.c_obehavior == '变道向右'))
-                                         | ((self.label.c_oposition == '右前') & (self.label.c_obehavior == '变道向左'))
-                                 )
-                                 & (self.label.c_sensor_type == 'A')]
-            for i, row in c_label.iterrows():
-                # 获取起始时间
-                start_time = round(row['c_p_starttime'], 1)
-                end_time = round(row['c_p_endtime'], 1)
-                new_id = row['c_newid']
-                session_id = row['c_session'].strip()
-                scenario = LaneChangeScenario(df_vehicle, df_object, start_time, end_time, new_id, session_id)
-                if scenario.check_nan():
-                    scenario_list.append(scenario)
-        print(f'数据读取完毕，共记{len(scenario_list)}条数据')
+                # 读取标注数据，要保证session_id的一致性
+                c_label = self.label[(
+                                             ((self.label.c_oposition == '左前') & (self.label.c_obehavior == '向右变道'))
+                                             | ((self.label.c_oposition == '右前') & (self.label.c_obehavior == '向左变道'))
+                                             | ((self.label.c_oposition == '左前') & (self.label.c_obehavior == '变道向右'))
+                                             | ((self.label.c_oposition == '右前') & (self.label.c_obehavior == '变道向左'))
+                                     )
+                                     & (self.label.c_sensor_type == 'A')]
+                for i, row in c_label.iterrows():
+                    # 获取起始时间
+                    start_time = round(row['c_p_starttime'], 1)
+                    end_time = round(row['c_p_endtime'], 1)
+                    new_id = row['c_newid']
+                    session_id = row['c_session'].strip()
+                    scenario = LaneChangeScenario(df_vehicle, df_object, start_time, end_time, new_id, session_id)
+                    if scenario.check_nan():
+                        scenario_list.append(scenario)
+            print(f'数据读取完毕，共记{len(scenario_list)}条数据')
+            with open('scenario', 'wb') as f:
+                pickle.dump(scenario_list, f)
 
         ego_v = np.array([t.ego_car.velocity_x for t in scenario_list])
-        ego_y_v = np.array([t.ego_car.velocity_y for t in scenario_list])
+        ego_y_v = np.array([np.abs(t.ego_car.velocity_y) for t in scenario_list])
         distance = np.array([t.obj_car.displacement_x for t in scenario_list])
         relative_v = np.array([t.obj_car.relative_velocity_x for t in scenario_list])
 

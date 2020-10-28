@@ -6,11 +6,36 @@ from src.core.read_data import FileUtil
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 from src.core.curve_fit import polynomial_fit
 from scipy import signal
 import os
+from src.config.parameters import Function
 
 if __name__ == '__main__':
+    # f_min = Function('../parameters/dis_evy_min.txt')
+    # f_max = Function('../parameters/ev_dis_max.txt')
+    # exit(0)
+    # x_l = np.arange(0.1, 10, 0.1)
+    # y_l = np.arange(0.1, 10, 0.1)
+    # z_l = np.arange(0.1, 10, 0.1)
+    # x_list = []
+    # y_list = []
+    # z_list = []
+    # m = np.ones((len(x_l), len(y_l), len(z_l)))
+    # for i in range(len(x_l)):
+    #     for j in range(len(y_l)):
+    #         for k in range(len(z_l)):
+    #             m[i][j][j] = 1
+    # print(m.shape)
+    #
+    # # figure = plt.figure(figsize=(30, 20))
+    # # axs = Axes3D(figure)
+    # # axs.scatter3D(x_list, y_list, z_list, cmap='Blues', alpha=0.6)
+    # # # axs.scatter3D(error_x, error_y, good_point_z, c='lightcoral', s=10,  alpha=0.6)
+    # # plt.show()
+    # exit(0)
+
     # test()
     # exit(0)
     # Folder_Path = r'/Users/liebes/Downloads/temp'  # 要拼接的文件夹及其完整路径，注意不要包含中文
@@ -90,6 +115,6 @@ if __name__ == '__main__':
     file_util = FileUtil(config)
 
     # parameters is stored in parameters folder
-    file_util.get_data()
+    file_util.get_data(use_cache=True)
 
     # file_util.generate_point()
