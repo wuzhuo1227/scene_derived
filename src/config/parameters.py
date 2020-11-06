@@ -20,6 +20,13 @@ class Group:
 
 
 class Function:
+    def __init__(self):
+        self.pars = []
+        self.x_min = 0
+        self.x_max = 0
+        self.y_min = 0
+        self.y_max = 0
+
     def __init__(self, file_path):
         self.pars = []
         self.load_file(file_path)
@@ -27,7 +34,14 @@ class Function:
     def load_file(self, file_path):
         with open(file_path) as file:
             for line in file:
-                self.pars.append(line.split(':')[1].split(','))
+                p = line.split('|')[0]
+                m = line.split('|')[1]
+                self.pars.append(p.split(':')[1].split(','))
+                ms = m.split(',')
+                self.x_min = float(ms[0]) * 1.2
+                self.x_max = float(ms[1]) * 1.2
+                self.y_min = float(ms[2]) * 1.2
+                self.y_max = float(ms[3]) * 1.2
 
     def get_func(self, x, degree):
         parameters = self.pars[degree - 1]
@@ -43,3 +57,17 @@ class Function:
                    parameters[2] * x * x + parameters[3] * x + parameters[4]
         else:
             return x
+
+    def get_rev_func(self):
+        parameters = self.pars[0]
+        parameters = np.array(parameters).astype(np.float64)
+        parameters[1] = -parameters[1] / parameters[0]
+        parameters[0] = 1.0 / parameters[0]
+
+        res = Function()
+        res.pars.append(parameters)
+
+        return res
+
+    def check(self, x, y):
+        return (self.x_min <= x <= self.x_max) and (self.y_min <= y <= self.y_max)

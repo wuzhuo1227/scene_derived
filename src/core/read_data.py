@@ -53,17 +53,17 @@ class FileUtil:
 
         ego_v = np.array([t.ego_car.velocity_x for t in scenario_list])
         ego_y_v = np.array([np.abs(t.ego_car.velocity_y) for t in scenario_list])
-        distance = np.array([t.obj_car.displacement_x for t in scenario_list])
+        distance = np.array([np.abs(t.obj_car.displacement_x) for t in scenario_list])
         relative_v = np.array([t.obj_car.relative_velocity_x for t in scenario_list])
 
         ego_a = np.array([t.ego_car.acceleration_x for t in scenario_list])
         obj_v = np.array([t.obj_car.velocity_x for t in scenario_list])
         obj_a = np.array([t.obj_car.acceleration_x for t in scenario_list])
 
-        # # 最开始做的版本，采用本车速度去拟合其他属性
-        # self.fit2(ego_v, ego_a, obj_v, obj_a, distance, relative_v)
-        # # 之后提出的新需求，两两曲线拟合
-        # self.fit(ego_v, ego_y_v, distance, relative_v)
+        # 最开始做的版本，采用本车速度去拟合其他属性
+        self.fit2(ego_v, ego_a, obj_v, obj_a, distance, relative_v)
+        # 之后提出的新需求，两两曲线拟合
+        self.fit(ego_v, ego_y_v, distance, relative_v)
         #
         # time = np.array([t.change_time for t in scenario_list])
         # self.fit_time(time, ego_v, distance, relative_v)

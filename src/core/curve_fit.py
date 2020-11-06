@@ -20,7 +20,8 @@ def flatten(a):
 
 
 # 多项式拟合
-def polynomial_fit(x, y, degrees, colors, text_name, with_label=1, ranges_min=60, ranges_max=110, loc=4):
+def polynomial_fit(x, y, x_range, y_range, degrees, colors, text_name, with_label=1, ranges_min=60, ranges_max=110,
+                   loc=4):
     font = {'family': 'Times New Roman', 'weight': 'normal', 'size': 15}
     # x = flatten(x)
     # y = flatten(y)
@@ -36,12 +37,11 @@ def polynomial_fit(x, y, degrees, colors, text_name, with_label=1, ranges_min=60
     # 将拟合参数写入文件
     with open(text_name, 'w') as f:
         for idx, degree in enumerate(degrees):
-            print("233")
-            print(x)
-            print(y)
             f1 = np.polyfit(x, y, degree)
             # print('f with degree ', degree, ' is :\n', degree, f1)
-            f.write(str(degree) + ':' + ','.join(str(x) for x in f1) + '\n')
+            f.write(
+                str(degree) + ':' + ','.join(str(x) for x in f1) + '|' + str(x_range[0]) + ',' + str(x_range[1]) + ','
+                + str(y_range[0]) + ',' + str(y_range[1]) + '\n')
             p1 = np.poly1d(f1)
             # d1 = p1.integ(1)
             # d2 = p1.integ(2)
@@ -52,7 +52,7 @@ def polynomial_fit(x, y, degrees, colors, text_name, with_label=1, ranges_min=60
             xt = np.arange(ranges_min, ranges_max, 0.001)
             yvals = p1(xt)  # 拟合y值
             # ytval = d1(xt)
-            print('yvals is :\n', yvals)
+            # print('yvals is :\n', yvals)
             # 绘图
             # if with_label:
             #     plt.plot(xt, yvals, colors[idx], label='polyfit values with degree' + str(degree))
@@ -128,14 +128,16 @@ def draw(x0, y0, x1, y1, degrees, colors, path, xlabel, ylabel):
 
         # p-value > 0.05, 接受原假设，差异不明显，采用直线拟合的方式
         # 调用多项式拟合，拟合的维度有 degrees 设定
-        polynomial_fit(x1, [item.max_std for item in y1], degrees, ['b'], path + '_max.txt',
+        polynomial_fit(x1, [item.max_std for item in y1], [min(x0), max(x0)], [min(y0), max(y0)], degrees, ['b'],
+                       path + '_max.txt',
                        ranges_min=min(x0) - 1, ranges_max=max(x0) + 1)
-        polynomial_fit(x1, [item.min_std for item in y1], degrees, ['g'], path + '_min.txt', 0,
+        polynomial_fit(x1, [item.min_std for item in y1], [min(x0), max(x0)], [min(y0), max(y0)], degrees, ['g'],
+                       path + '_min.txt', 0,
                        ranges_min=min(x0) - 1, ranges_max=max(x0) + 1)
-        polynomial_fit(x1, [item.mean for item in y1], degrees, ['r'], path, 0,
+        polynomial_fit(x1, [item.mean for item in y1], [min(x0), max(x0)], [min(y0), max(y0)], degrees, ['r'], path, 0,
                        ranges_min=min(x0) - 1, ranges_max=max(x0) + 1)
         plt.scatter(x1, [item.max_std for item in y1], color='blue', marker='^',
-                label=f"上界µ+{MathParameter.sigma_num}$\\sigma$")
+                    label=f"上界µ+{MathParameter.sigma_num}$\\sigma$")
         plt.scatter(x1, [item.min_std for item in y1], color='green', marker='v',
                     label=f'下界µ-{MathParameter.sigma_num}$\\sigma$')
         plt.scatter(x1, [item.mean for item in y1], color='red', marker='x', label='平均值µ')

@@ -51,7 +51,8 @@ def generate(scenario_list):
     #             continue
     #         draw_back(ve, ve - rv, max(dx), max(voy))
     #         draw(dx, voy, dx_cluster, voy_par, degrees, colors, '../parameters/dx_voy', 'dx', 'voy')
-    plt.show()
+
+
 
 
 def draw_back(rv, ve, dx, voy, figure):
@@ -70,9 +71,11 @@ def draw_back(rv, ve, dx, voy, figure):
     k = -0.774 * g / td
     # 切向距离
     dy = 1.6
-    dx_list = np.arange(0.1, max(dx), 1)
-    vy_list = np.arange(0.1, max(voy), 0.1)
-    ve_list = np.arange(0.1, max(ve), 1)
+
+    # 取值范围定为最大值的1.2倍
+    dx_list = np.arange(0.1, max(dx) * 1.2, 1)
+    vy_list = np.arange(0.1, max(voy) * 1.2, 0.1)
+    ve_list = np.arange(0.1, max(ve) * 1.2, 1)
 
     m = np.ones((len(dx_list), len(vy_list), len(ve_list)))
     bm = np.ones((len(dx_list), len(vy_list), len(ve_list)))
@@ -84,12 +87,12 @@ def draw_back(rv, ve, dx, voy, figure):
     real_critical_num = 0
     real_safe_num = 0
 
-    dx_vy_min = Function('/Users/liebes/project/laboratory/scene_derived/parameters/dis_eyv_min.txt')
-    dx_vy_max = Function('/Users/liebes/project/laboratory/scene_derived/parameters/dis_eyv_max.txt')
-    dx_ve_min = Function('/Users/liebes/project/laboratory/scene_derived/parameters/dis_ev_min.txt')
-    dx_ve_max = Function('/Users/liebes/project/laboratory/scene_derived/parameters/dis_ev_max.txt')
-    ve_vy_min = Function('/Users/liebes/project/laboratory/scene_derived/parameters/ev_eyv_min.txt')
-    ve_vy_max = Function('/Users/liebes/project/laboratory/scene_derived/parameters/ev_eyv_max.txt')
+    dx_vy_min = Function('../parameters/dis_eyv_min.txt')
+    dx_vy_max = Function('../parameters/dis_eyv_max.txt')
+    dx_ve_min = Function('../parameters/dis_ev_min.txt')
+    dx_ve_max = Function('../parameters/dis_ev_max.txt')
+    ve_vy_min = Function('../parameters/ev_eyv_min.txt')
+    ve_vy_max = Function('../parameters/ev_eyv_max.txt')
     # 0 不合法点，1 参数空间内不合法点，2参数空间内危险点，3参数空间内安全点
     for i in range(len(dx_list)):
         for j in range(len(vy_list)):
@@ -157,23 +160,83 @@ def draw_back(rv, ve, dx, voy, figure):
     ill_y = np.array(ill_y)
     ill_z = np.array(ill_z)
 
-
     # 绘制背景
     axs = Axes3D(figure)
-    axs.scatter3D(x, y, z, c='lightgreen', s=15, alpha=0.5)
-    axs.scatter3D(ex, ey, ez, c='lightcoral', s=15, alpha=1)
+    axs.scatter3D(x, y, z, c='lightgreen', s=20, alpha=0.5)
+    axs.scatter3D(ex, ey, ez, c='lightcoral', s=20, alpha=0.5)
 
     # axs.scatter3D(bx, by, bz, c='black', s=20, alpha=1.0)
     # axs.scatter3D(ill_x, ill_y, ill_z, c='black', s=15, alpha=0.4)
-    axs.set_xlabel('本车速度')
-    axs.set_ylabel('切向速度')
-    axs.set_zlabel('距离')
+    axs.set_xlabel('距离', fontdict={'size': 30})
+    axs.set_ylabel('切向速度', fontdict={'size': 30})
+    axs.set_zlabel('本车速度', fontdict={'size': 30})
 
-    axs.scatter3D(dx, voy, ve, c='grey')
+    dex = []
+    voey = []
+    vee = []
 
+    dex1 = []
+    voey1 = []
+    vee1 = []
+    for i in range(len(dx)):
+        if is_critical(ve[i], ve[i] - rv, k, tp, td, dy, dx[i], voy[i]):
+            dex.append(dx[i])
+            voey.append(voy[i])
+            vee.append(ve[i])
+        else:
+            dex1.append(dx[i])
+            voey1.append(voy[i])
+            vee1.append(ve[i])
 
-    # plt.show()
+    axs.scatter3D(dex, voey, vee, c='red', s=70)
+    axs.scatter3D(dex1, voey1, vee1, c='green', s=70)
 
+    plt.show()
+
+    figure = plt.figure(figsize=(30, 30))
+    # 使用mcmc采样
+    # 在求随机数的时候需要转换回来，之后我觉得可以把单位统一一下。。
+    vy_dx_min = Function('../parameters/eyv_dis_min.txt')
+    vy_dx_max = Function('../parameters/eyv_dis_max.txt')
+    ve_dx_min = Function('../parameters/ev_dis_min.txt')
+    ve_dx_max = Function('../parameters/ev_dis_max.txt')
+    vy_ve_min = Function('../parameters/eyv_ev_min.txt')
+    vy_ve_max = Function('../parameters/eyv_ev_max.txt')
+
+    # init first point x:dx, y:voy, z:ve
+    # 距离
+    x0 = np.random.rand() * (max(dx) - min(dx)) + min(dx)
+    y_min = dx_vy_min.get_func(x0, 1)
+    y_max = dx_vy_max.get_func(x0, 1)
+    y0 = np.random.rand() * (y_max - y_min) + y_min
+    z0 = get_random(x0, y0, dx_ve_min, dx_ve_max, vy_ve_min, vy_ve_max)
+    sample_x, sample_y, sample_z = \
+        mcmc_sample(x0, y0, z0, dx_vy_min, dx_vy_max,
+                    vy_dx_min, vy_dx_max,
+                    dx_ve_min, dx_ve_max,
+                    ve_dx_min, ve_dx_max,
+                    vy_ve_min, vy_ve_max,
+                    ve_vy_min, ve_vy_max, 1000)
+
+    sample_g = []
+    sample_r = []
+    sample_z = np.array(sample_z) / 3.6
+    sample_y = np.array(sample_y) / 3.6
+    for i in range(len(sample_x)):
+        if is_critical(sample_z[i], sample_z[i] - rv, k, tp, td, dy, sample_x[i], sample_y[i]):
+            sample_r.append([sample_x[i], sample_y[i], sample_z[i]])
+        else:
+            sample_g.append([sample_x[i], sample_y[i], sample_z[i]])
+
+    # 绘制背景
+    axs = Axes3D(figure)
+    axs.scatter3D([d[0] for d in sample_g], [d[1] for d in sample_g], [d[2] for d in sample_g], c='green', s=20, alpha=0.5)
+    axs.scatter3D([d[0] for d in sample_r], [d[1] for d in sample_r], [d[2] for d in sample_r], c='red', s=20, alpha=0.5)
+
+    axs.set_xlabel('距离', fontdict={'size': 30})
+    axs.set_ylabel('切向速度', fontdict={'size': 30})
+    axs.set_zlabel('本车速度', fontdict={'size': 30})
+    plt.show()
 
 def draw_back2(ve, vo, max_x, max_y):
     # 单位统一为m/s
@@ -210,7 +273,7 @@ def draw_back2(ve, vo, max_x, max_y):
 
 
 def is_critical(ve, vo, k, tp, td, dy, dx, vy):
-    ve_ = ve + 0.5 * k * 0.6 * 0.6
+    ve_ = ve + 0.5 * k * td * td
     if vo > ve_:
         tc = tp + np.sqrt(2.0 * (vo - ve) / k)
         dc = tp * ve + ve * (tc - tp) + k / 6.0 * np.power(tc - tp, 3) - vo * tc
@@ -251,3 +314,37 @@ def check(func_min, func_max, x, y):
     a = func_min.get_func(x, 1)
     b = func_max.get_func(x, 1)
     return a <= y <= b
+
+
+def mcmc_sample(x0, y0, z0, fxy_min, fxy_max,
+                fyx_min, fyx_max,
+                fxz_min, fxz_max,
+                fzx_min, fzx_max,
+                fyz_min, fyz_max,
+                fzy_min, fzy_max,
+                n=1000):
+    # 马尔可夫链收敛阈值，具体多少收敛我也不知道，貌似需要验证？？？
+    step = 30
+    x = []
+    y = []
+    z = []
+    for i in range(n):
+        for j in range(step):
+            x0 = get_random(y0, z0, fyx_min, fyx_max, fzx_min, fzx_max)
+            y0 = get_random(x0, z0, fxy_min, fxy_max, fzy_min, fzy_max)
+            z0 = get_random(x0, y0, fxz_min, fxz_max, fyz_min, fyz_max)
+        x.append(x0)
+        y.append(y0)
+        z.append(z0)
+    return x, y, z
+
+
+def get_random(x, y, fxz_min, fxz_max, fyz_min, fyz_max):
+    z_min_x = fxz_min.get_func(x, 1)
+    z_max_x = fxz_max.get_func(x, 1)
+    z_min_y = fyz_min.get_func(y, 1)
+    z_max_y = fyz_max.get_func(y, 1)
+    z_min = max(z_min_x, z_min_y, fxz_min.y_min)
+    z_max = min(z_max_x, z_max_y, fxz_max.y_max)
+
+    return np.random.rand() * (z_max - z_min) + z_min
