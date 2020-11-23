@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import math
 from mpl_toolkits.mplot3d import Axes3D
 from src.config.parameters import Function
+import os
+import csv
 
 
 def generate(scenario_list):
@@ -38,22 +40,23 @@ def generate(scenario_list):
     figure = plt.figure(figsize=(30, 30))
     index = 0
 
+
     # for rv in range(10, 47, 4):
     #     index += 1
     #     plt.subplot(3, 3, index)
+    # 绘制采样点
     draw_back(20, ve, dx, voy, figure)
 
-    # for rv in range(10, 41, 10):
-    #     for ve in range(60, 19, -10):
-    #         index += 1
-    #         plt.subplot(4, 5, index)
-    #         if ve - rv <= 0:
-    #             continue
-    #         draw_back(ve, ve - rv, max(dx), max(voy))
-    #         draw(dx, voy, dx_cluster, voy_par, degrees, colors, '../parameters/dx_voy', 'dx', 'voy')
-
-
-
+    plt.figure(figsize=(30, 30))
+    for rv in range(10, 41, 10):
+        for ve in range(60, 19, -10):
+            index += 1
+            plt.subplot(4, 5, index)
+            if ve - rv <= 0:
+                continue
+            draw_back2(ve, ve - rv, max(dx), max(voy))
+            draw(dx, voy, dx_cluster, voy_par, degrees, colors, '../parameters/dx_voy', 'dx', 'voy')
+    plt.show()
 
 def draw_back(rv, ve, dx, voy, figure):
     # 单位统一为m/s
@@ -210,13 +213,14 @@ def draw_back(rv, ve, dx, voy, figure):
     y_max = dx_vy_max.get_func(x0, 1)
     y0 = np.random.rand() * (y_max - y_min) + y_min
     z0 = get_random(x0, y0, dx_ve_min, dx_ve_max, vy_ve_min, vy_ve_max)
+
     sample_x, sample_y, sample_z = \
         mcmc_sample(x0, y0, z0, dx_vy_min, dx_vy_max,
                     vy_dx_min, vy_dx_max,
                     dx_ve_min, dx_ve_max,
                     ve_dx_min, ve_dx_max,
                     vy_ve_min, vy_ve_max,
-                    ve_vy_min, ve_vy_max, 1000)
+                    ve_vy_min, ve_vy_max, 5000)
 
     sample_g = []
     sample_r = []
@@ -230,13 +234,28 @@ def draw_back(rv, ve, dx, voy, figure):
 
     # 绘制背景
     axs = Axes3D(figure)
-    axs.scatter3D([d[0] for d in sample_g], [d[1] for d in sample_g], [d[2] for d in sample_g], c='green', s=20, alpha=0.5)
-    axs.scatter3D([d[0] for d in sample_r], [d[1] for d in sample_r], [d[2] for d in sample_r], c='red', s=20, alpha=0.5)
+    axs.scatter3D([d[0] for d in sample_g], [d[1] for d in sample_g], [d[2] for d in sample_g], c='green', s=20,
+                  alpha=0.5)
+    axs.scatter3D([d[0] for d in sample_r], [d[1] for d in sample_r], [d[2] for d in sample_r], c='red', s=20,
+                  alpha=0.5)
 
     axs.set_xlabel('距离', fontdict={'size': 30})
     axs.set_ylabel('切向速度', fontdict={'size': 30})
     axs.set_zlabel('本车速度', fontdict={'size': 30})
     plt.show()
+
+    # 写入文件
+    with open('../scene/scenario-safe.csv', 'a+', encoding='utf-8-sig') as f:
+        writer = csv.writer(f)
+        writer.writerow(['id', 'ego_speed', 'obj_speed_x', 'distance_x', 'distance_y', 'obj_speed_y'])
+        for index, item in enumerate(sample_g):
+            writer.writerow([str(index), str(item[2]), str(item[2] + rv), str(item[0]), str(dy), str(item[1])])
+    with open('../scene/scenario-dangerous.csv', 'a+', encoding='utf-8-sig') as f:
+        writer = csv.writer(f)
+        writer.writerow(['id', 'ego_speed', 'obj_speed_x', 'distance_x', 'distance_y', 'obj_speed_y'])
+        for index, item in enumerate(sample_r):
+            writer.writerow([str(index), str(item[2]), str(item[2] + rv), str(item[0]), str(dy), str(item[1])])
+
 
 def draw_back2(ve, vo, max_x, max_y):
     # 单位统一为m/s
@@ -270,6 +289,8 @@ def draw_back2(ve, vo, max_x, max_y):
                 good_point_y.append(vy)
     plt.scatter(good_point_x, good_point_y, c='lightgreen', s=10, alpha=0.6)
     plt.scatter(error_x, error_y, c='lightcoral', s=10, alpha=0.6)
+
+    # plt.show()
 
 
 def is_critical(ve, vo, k, tp, td, dy, dx, vy):

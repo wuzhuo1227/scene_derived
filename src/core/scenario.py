@@ -69,6 +69,9 @@ class LaneChangeScenario:
             ii, self.max_displacement_y = self.get_max_value(y_dis)
             self.change_time = time[ii] - min(time)
 
+    def __str__(self):
+        return str(self.ego_car) + ' | ' + str(self.obj_car)
+
     def check_nan(self):
         return self.ego_car.check_nan() & self.obj_car.check_nan() & (self.max_displacement_y != 'na') & (
                 self.max_acceleration_y != 'na') & (self.change_time != 'na')
@@ -135,7 +138,8 @@ class EgoCar:
         if self.acceleration_y == 'na' or np.isnan(self.acceleration_y):
             return False
         return True
-
+    def __str__(self):
+        return f'ego: vx:{self.velocity_x}, vy:{self.velocity_y}, vax:{self.acceleration_x}, vay:{self.velocity_y}'
 
 class ObjCar:
     def __init__(self):
@@ -166,3 +170,7 @@ class ObjCar:
         if self.relative_velocity_y == 'na' or np.isnan(self.relative_velocity_y):
             return False
         return True
+
+    def __str__(self):
+        return f'obj: vx:{self.velocity_x}, vy:{self.velocity_y}, vax:{self.acceleration_x}, vay:{self.velocity_y}, dx:{self.displacement_x}, dy:{self.displacement_y}, rvx:{self.relative_velocity_x}, rvy:{self.relative_velocity_y}'
+

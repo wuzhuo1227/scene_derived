@@ -20,6 +20,7 @@ class FileUtil:
     def get_data(self, use_cache=True):
         # 场景列表
         scenario_list = []
+        # 读取缓存
         if use_cache:
             with open('scenario', 'rb') as f:
                 scenario_list = pickle.load(f)
@@ -48,8 +49,11 @@ class FileUtil:
                     if scenario.check_nan():
                         scenario_list.append(scenario)
             print(f'数据读取完毕，共记{len(scenario_list)}条数据')
+            # 缓存
             with open('scenario', 'wb') as f:
                 pickle.dump(scenario_list, f)
+        #
+        print(str(scenario_list))
 
         ego_v = np.array([t.ego_car.velocity_x for t in scenario_list])
         ego_y_v = np.array([np.abs(t.ego_car.velocity_y) for t in scenario_list])
@@ -61,12 +65,13 @@ class FileUtil:
         obj_a = np.array([t.obj_car.acceleration_x for t in scenario_list])
 
         # 最开始做的版本，采用本车速度去拟合其他属性
-        self.fit2(ego_v, ego_a, obj_v, obj_a, distance, relative_v)
+        # self.fit2(ego_v, ego_a, obj_v, obj_a, distance, relative_v)
         # 之后提出的新需求，两两曲线拟合
-        self.fit(ego_v, ego_y_v, distance, relative_v)
+        # self.fit(ego_v, ego_y_v, distance, relative_v)
         #
         # time = np.array([t.change_time for t in scenario_list])
         # self.fit_time(time, ego_v, distance, relative_v)
+        # 危险场景
         generate_critical(scenario_list=scenario_list)
 
 
